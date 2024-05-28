@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1716896309 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\fuse.c
+	<avr/io.h>
+
+1716558990 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.c
+	<avr/interrupt.h>
+	<avr/io.h>
+
+1716899273 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.c
+	<avr/io.h>
+	<avr/interrupt.h>
+	<avr/delay.h>
+	"SteppermotorAVRDriver.h"
+
+1716899315 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.h
+
