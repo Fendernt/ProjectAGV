@@ -6,14 +6,20 @@
  */
 
 #include <avr/io.h>
+#include "SteppermotorAVRDriver.h"
 
 int main(void)
 {
 
     // Insert code
+    initSteppermotorAVRDriver();
 
-    while(1)
-    ;
+    setStepperMode(leftMotor, ForwardStep);
+    setStepperMode(rightMotor, ForwardStep);
+
+    while(1){
+
+    }
 
     return 0;
 }
