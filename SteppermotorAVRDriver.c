@@ -131,7 +131,7 @@ void RightStepperNextStep(){
 }
 
 
-ISR(TIMER0_OVF_vect){\
+ISR(TIMER0_OVF_vect){
     if(leftMotorEnabled) LeftStepperNextStep();
     if(rightMotorEnabled) RightStepperNextStep();
 

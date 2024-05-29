@@ -3,9 +3,7 @@
 
 volatile uint16_t agv_ultrasoon_boom_links = 0;
 volatile uint16_t agv_ultrasoon_boom_rechts = 0;
-volatile uint16_t agv_ultrasoon_voor_links = 0;
 volatile uint16_t agv_ultrasoon_voor_midden = 0;
-volatile uint16_t agv_ultrasoon_voor_rechts = 0;
 volatile uint8_t agv_ultrasoon_current_sensor = 2;
 
 void agv_ultrasoon_init()
@@ -47,17 +45,9 @@ ISR(TIMER3_CAPT_vect)
     {
         agv_ultrasoon_boom_links = (ICR3 - 4454)/4*0.0343;
     }
-    else if(agv_ultrasoon_current_sensor == 0b00001000)
-    {
-        agv_ultrasoon_voor_rechts = (ICR3 - 4454)/4*0.0343;
-    }
     else if(agv_ultrasoon_current_sensor == 0b00010000)
     {
         agv_ultrasoon_voor_midden = (ICR3 - 4454)/4*0.0343;
-    }
-    else if(agv_ultrasoon_current_sensor == 0b00100000)
-    {
-        agv_ultrasoon_voor_links = (ICR3 - 4454)/4*0.0343;
     }
     PCMSK2 = 0;
 
@@ -75,20 +65,10 @@ ISR(PCINT2_vect)
         agv_ultrasoon_boom_links = (TCNT3 - 4454)/4*0.0343;
         PORTA &= ~(0b00000010);
     }
-    else if(agv_ultrasoon_current_sensor == 0b00001000)
-    {
-        agv_ultrasoon_voor_rechts = (TCNT3 - 4454)/4*0.0343;
-        PORTA &= ~(0b0000100);
-    }
     else if(agv_ultrasoon_current_sensor == 0b00010000)
     {
         agv_ultrasoon_voor_midden = (TCNT3 - 4454)/4*0.0343;
         PORTA &= ~(0b00001000);
-    }
-    else if(agv_ultrasoon_current_sensor == 0b00100000)
-    {
-        agv_ultrasoon_voor_links = (TCNT3 - 4454)/4*0.0343;
-        PORTA &= ~(0b00010000);
     }
     //check welke sensor en schrijf timer3 waarde naar sensorwaarde
     TIMSK3 &= ~(1<<ICIE3);
