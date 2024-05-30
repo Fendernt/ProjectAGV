@@ -580,38 +580,38 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x0000000000000000     0x19b5
+.debug_info     0x0000000000000000     0x1862
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x0000000000000000      0xbbc c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/../../../../avr/lib/avr6/crtatmega2560.o
  .debug_info    0x0000000000000bbc       0xa2 obj\Debug\fuse.o
- .debug_info    0x0000000000000c5e      0x7f1 obj\Debug\main.o
- .debug_info    0x000000000000144f      0x32e obj\Debug\SteppermotorAVRDriver.o
- .debug_info    0x000000000000177d      0x1cc obj\Debug\Ultrasone_sensor.o
- .debug_info    0x0000000000001949       0x24 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_exit.o)
- .debug_info    0x000000000000196d       0x24 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_copy_data.o)
- .debug_info    0x0000000000001991       0x24 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_clear_bss.o)
+ .debug_info    0x0000000000000c5e      0x69e obj\Debug\main.o
+ .debug_info    0x00000000000012fc      0x32e obj\Debug\SteppermotorAVRDriver.o
+ .debug_info    0x000000000000162a      0x1cc obj\Debug\Ultrasone_sensor.o
+ .debug_info    0x00000000000017f6       0x24 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_exit.o)
+ .debug_info    0x000000000000181a       0x24 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_copy_data.o)
+ .debug_info    0x000000000000183e       0x24 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_clear_bss.o)
 
-.debug_abbrev   0x0000000000000000     0x1122
+.debug_abbrev   0x0000000000000000     0x1105
  *(.debug_abbrev)
  .debug_abbrev  0x0000000000000000      0xb1a c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/../../../../avr/lib/avr6/crtatmega2560.o
  .debug_abbrev  0x0000000000000b1a       0x7b obj\Debug\fuse.o
- .debug_abbrev  0x0000000000000b95      0x2e5 obj\Debug\main.o
- .debug_abbrev  0x0000000000000e7a      0x1b3 obj\Debug\SteppermotorAVRDriver.o
- .debug_abbrev  0x000000000000102d       0xb9 obj\Debug\Ultrasone_sensor.o
- .debug_abbrev  0x00000000000010e6       0x14 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_exit.o)
- .debug_abbrev  0x00000000000010fa       0x14 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_copy_data.o)
- .debug_abbrev  0x000000000000110e       0x14 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_clear_bss.o)
+ .debug_abbrev  0x0000000000000b95      0x2c8 obj\Debug\main.o
+ .debug_abbrev  0x0000000000000e5d      0x1b3 obj\Debug\SteppermotorAVRDriver.o
+ .debug_abbrev  0x0000000000001010       0xb9 obj\Debug\Ultrasone_sensor.o
+ .debug_abbrev  0x00000000000010c9       0x14 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_exit.o)
+ .debug_abbrev  0x00000000000010dd       0x14 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_copy_data.o)
+ .debug_abbrev  0x00000000000010f1       0x14 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_clear_bss.o)
 
-.debug_line     0x0000000000000000     0x12bd
+.debug_line     0x0000000000000000     0x129b
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x0000000000000000       0x1d c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/../../../../avr/lib/avr6/crtatmega2560.o
  .debug_line    0x000000000000001d       0x3f obj\Debug\fuse.o
- .debug_line    0x000000000000005c      0x8d0 obj\Debug\main.o
- .debug_line    0x000000000000092c      0x474 obj\Debug\SteppermotorAVRDriver.o
- .debug_line    0x0000000000000da0      0x3c4 obj\Debug\Ultrasone_sensor.o
- .debug_line    0x0000000000001164       0x51 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_exit.o)
- .debug_line    0x00000000000011b5       0x93 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_copy_data.o)
- .debug_line    0x0000000000001248       0x75 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_clear_bss.o)
+ .debug_line    0x000000000000005c      0x8ae obj\Debug\main.o
+ .debug_line    0x000000000000090a      0x474 obj\Debug\SteppermotorAVRDriver.o
+ .debug_line    0x0000000000000d7e      0x3c4 obj\Debug\Ultrasone_sensor.o
+ .debug_line    0x0000000000001142       0x51 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_exit.o)
+ .debug_line    0x0000000000001193       0x93 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_copy_data.o)
+ .debug_line    0x0000000000001226       0x75 c:/program files (x86)/avr-gcc-12.0.1/bin/../lib/gcc/avr/12.1.0/avr6\libgcc.a(_clear_bss.o)
 
 .debug_frame    0x0000000000000000      0x2dc
  *(.debug_frame)
@@ -699,10 +699,10 @@ END GROUP
  *(.debug_names)
 
 .debug_rnglists
-                0x0000000000000000       0x58
+                0x0000000000000000       0x21
  *(.debug_rnglists)
  .debug_rnglists
-                0x0000000000000000       0x58 obj\Debug\main.o
+                0x0000000000000000       0x21 obj\Debug\main.o
 
 .debug_str_offsets
  *(.debug_str_offsets)

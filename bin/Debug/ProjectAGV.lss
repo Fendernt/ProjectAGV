@@ -17,21 +17,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, OCTETS
   6 .debug_aranges 000000d8  00000000  00000000  00000eb0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  7 .debug_info   000019b5  00000000  00000000  00000f88  2**0
+  7 .debug_info   00001862  00000000  00000000  00000f88  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  8 .debug_abbrev 00001122  00000000  00000000  0000293d  2**0
+  8 .debug_abbrev 00001105  00000000  00000000  000027ea  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  9 .debug_line   000012bd  00000000  00000000  00003a5f  2**0
+  9 .debug_line   0000129b  00000000  00000000  000038ef  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 10 .debug_frame  000002dc  00000000  00000000  00004d1c  2**2
+ 10 .debug_frame  000002dc  00000000  00000000  00004b8c  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 11 .debug_str    00000874  00000000  00000000  00004ff8  2**0
+ 11 .debug_str    00000874  00000000  00000000  00004e68  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 12 .debug_line_str 00000211  00000000  00000000  0000586c  2**0
+ 12 .debug_line_str 00000211  00000000  00000000  000056dc  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_loclists 00000247  00000000  00000000  00005a7d  2**0
+ 13 .debug_loclists 00000247  00000000  00000000  000058ed  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_rnglists 00000058  00000000  00000000  00005cc4  2**0
+ 14 .debug_rnglists 00000021  00000000  00000000  00005b34  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -313,7 +313,7 @@ void initButtons(){
  19c:	91 05       	cpc	r25, r1
  19e:	69 f7       	brne	.-38     	; 0x17a <.L9>
 
-000001a0 <.LBE13>:
+000001a0 <.LBE8>:
     }
 }
  1a0:	08 95       	ret
@@ -363,7 +363,7 @@ void initLEDS(){
  1c6:	91 05       	cpc	r25, r1
  1c8:	91 f7       	brne	.-28     	; 0x1ae <.L12>
 
-000001ca <.LBE14>:
+000001ca <.LBE9>:
     }
 }
  1ca:	08 95       	ret
@@ -419,7 +419,7 @@ void initIRSensors(){
  1f6:	91 05       	cpc	r25, r1
  1f8:	69 f7       	brne	.-38     	; 0x1d4 <.L15>
 
-000001fa <.LBE15>:
+000001fa <.LBE10>:
     }
 }
  1fa:	08 95       	ret
@@ -560,12 +560,12 @@ int filterDistance(int distance){
 
 0000026a <.LVL17>:
  26a:	0e 97       	sbiw	r24, 0x0e	; 14
- 26c:	0c f4       	brge	.+2      	; 0x270 <.LBB17>
+ 26c:	0c f4       	brge	.+2      	; 0x270 <.Loc.97>
 
 0000026e <L0^A>:
  26e:	57 c0       	rjmp	.+174    	; 0x31e <.L35>
 
-00000270 <.LBB17>:
+00000270 <.Loc.97>:
     if((TreeDistance > filterDistance(agv_ultrasoon_boom_links)) && !leftPreviousState){
  270:	80 91 3a 02 	lds	r24, 0x023A	; 0x80023a <agv_ultrasoon_boom_links>
  274:	90 91 3b 02 	lds	r25, 0x023B	; 0x80023b <agv_ultrasoon_boom_links+0x1>
@@ -830,17 +830,17 @@ void followHand(int distance){
  392:	3c f5       	brge	.+78     	; 0x3e2 <.L54>
  394:	c1 30       	cpi	r28, 0x01	; 1
  396:	d1 05       	cpc	r29, r1
- 398:	09 f0       	breq	.+2      	; 0x39c <.Loc.162>
+ 398:	09 f0       	breq	.+2      	; 0x39c <.Loc.161>
 
 0000039a <L0^A>:
  39a:	43 c0       	rjmp	.+134    	; 0x422 <.L50>
 
-0000039c <.Loc.162>:
+0000039c <.Loc.161>:
                 FrontDistance = agv_ultrasoon_voor_midden;
  39c:	c0 90 36 02 	lds	r12, 0x0236	; 0x800236 <agv_ultrasoon_voor_midden>
  3a0:	d0 90 37 02 	lds	r13, 0x0237	; 0x800237 <agv_ultrasoon_voor_midden+0x1>
 
-000003a4 <.Loc.164>:
+000003a4 <.Loc.163>:
                 int IRState = checkFrontIRState();
  3a4:	0e 94 09 01 	call	0x212	; 0x212 <checkFrontIRState>
 
@@ -848,7 +848,7 @@ void followHand(int distance){
  3a8:	08 2f       	mov	r16, r24
  3aa:	19 2f       	mov	r17, r25
 
-000003ac <.Loc.166>:
+000003ac <.Loc.165>:
                 switch(IRState){
  3ac:	02 30       	cpi	r16, 0x02	; 2
  3ae:	11 05       	cpc	r17, r1
@@ -870,7 +870,7 @@ void followHand(int distance){
  3c2:	11 05       	cpc	r17, r1
  3c4:	71 f5       	brne	.+92     	; 0x422 <.L50>
 
-000003c6 <.Loc.167>:
+000003c6 <.Loc.166>:
                         setStepperMode(rightMotor, BackwardStep);
  3c6:	62 e0       	ldi	r22, 0x02	; 2
  3c8:	70 e0       	ldi	r23, 0x00	; 0
@@ -890,7 +890,7 @@ void followHand(int distance){
                         break;
  3de:	e8 01       	movw	r28, r16
 
-000003e0 <.Loc.170>:
+000003e0 <.Loc.169>:
  3e0:	20 c0       	rjmp	.+64     	; 0x422 <.L50>
 
 000003e2 <.L54>:
@@ -899,7 +899,7 @@ void followHand(int distance){
  3e4:	d1 05       	cpc	r29, r1
  3e6:	e9 f4       	brne	.+58     	; 0x422 <.L50>
 
-000003e8 <.Loc.173>:
+000003e8 <.Loc.172>:
                 setStepperMode(leftMotor, ForwardStep);
  3e8:	6e 2d       	mov	r22, r14
  3ea:	7f 2d       	mov	r23, r15
@@ -951,13 +951,13 @@ void followHand(int distance){
  426:	89 2b       	or	r24, r25
  428:	61 f7       	brne	.-40     	; 0x402 <.L51>
 
-0000042a <.LBE35>:
+0000042a <.Loc.185>:
         if(mode != Noodstop && mode != ModeOff && isStartButtonPressed()){
  42a:	c4 30       	cpi	r28, 0x04	; 4
  42c:	d1 05       	cpc	r29, r1
  42e:	49 f3       	breq	.-46     	; 0x402 <.L51>
 
-00000430 <.Loc.189>:
+00000430 <.Loc.187>:
  430:	20 97       	sbiw	r28, 0x00	; 0
  432:	09 f0       	breq	.+2      	; 0x436 <.L52>
 
@@ -970,7 +970,7 @@ void followHand(int distance){
  438:	90 e0       	ldi	r25, 0x00	; 0
  43a:	0e 94 c4 02 	call	0x588	; 0x588 <setBothStepperMode>
 
-0000043e <.LBB25>:
+0000043e <.LVL49>:
                 if(isStartButtonPressed()){
  43e:	0e 94 a3 00 	call	0x146	; 0x146 <isStartButtonPressed>
 
@@ -978,11 +978,11 @@ void followHand(int distance){
  442:	c8 2f       	mov	r28, r24
  444:	d9 2f       	mov	r29, r25
 
-00000446 <.Loc.194>:
+00000446 <.Loc.191>:
  446:	20 97       	sbiw	r28, 0x00	; 0
  448:	61 f3       	breq	.-40     	; 0x422 <.L50>
 
-0000044a <.LBB26>:
+0000044a <.LBB12>:
                     int switchState = checkModeSwitchState();
  44a:	0e 94 a9 00 	call	0x152	; 0x152 <checkModeSwitchState>
 
@@ -990,7 +990,7 @@ void followHand(int distance){
  44e:	c8 2f       	mov	r28, r24
  450:	d9 2f       	mov	r29, r25
 
-00000452 <.Loc.197>:
+00000452 <.Loc.194>:
                     switch(switchState){
  452:	c1 30       	cpi	r28, 0x01	; 1
  454:	d1 05       	cpc	r29, r1
@@ -1005,7 +1005,7 @@ void followHand(int distance){
 00000464 <.L58>:
  464:	ec 01       	movw	r28, r24
 
-00000466 <.Loc.198>:
+00000466 <.Loc.195>:
  466:	cc 0f       	add	r28, r28
  468:	dd 1f       	adc	r29, r29
  46a:	db cf       	rjmp	.-74     	; 0x422 <.L50>
@@ -1015,7 +1015,7 @@ void followHand(int distance){
  46e:	11 05       	cpc	r17, r1
  470:	c1 f6       	brne	.-80     	; 0x422 <.L50>
 
-00000472 <.Loc.200>:
+00000472 <.Loc.197>:
                         followHand(filterDistance(FrontDistance));
  472:	c6 01       	movw	r24, r12
  474:	0e 94 1d 01 	call	0x23a	; 0x23a <filterDistance>
@@ -1065,7 +1065,7 @@ void followHand(int distance){
  4a6:	08 2f       	mov	r16, r24
  4a8:	19 2f       	mov	r17, r25
 
-000004aa <.Loc.210>:
+000004aa <.Loc.206>:
                 switch(WorldState){
  4aa:	02 30       	cpi	r16, 0x02	; 2
  4ac:	11 05       	cpc	r17, r1
@@ -1076,18 +1076,18 @@ void followHand(int distance){
  4b6:	d9 f0       	breq	.+54     	; 0x4ee <.L67>
  4b8:	01 30       	cpi	r16, 0x01	; 1
  4ba:	11 05       	cpc	r17, r1
- 4bc:	09 f0       	breq	.+2      	; 0x4c0 <.Loc.211>
+ 4bc:	09 f0       	breq	.+2      	; 0x4c0 <.Loc.207>
 
 000004be <L0^A>:
  4be:	b1 cf       	rjmp	.-158    	; 0x422 <.L50>
 
-000004c0 <.Loc.211>:
+000004c0 <.Loc.207>:
                         setBothStepperMode(Off);
  4c0:	81 e0       	ldi	r24, 0x01	; 1
  4c2:	90 e0       	ldi	r25, 0x00	; 0
  4c4:	0e 94 c4 02 	call	0x588	; 0x588 <setBothStepperMode>
 
-000004c8 <.LBB28>:
+000004c8 <.LBB13>:
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
@@ -1108,7 +1108,7 @@ void followHand(int distance){
 000004d8 <L0^A>:
 	...
 
-000004da <.Loc.220>:
+000004da <.Loc.216>:
 	}
 	else
 		__ticks = (uint16_t)__tmp;
@@ -1120,12 +1120,12 @@ void followHand(int distance){
 000004dc <.L66>:
  4dc:	03 30       	cpi	r16, 0x03	; 3
  4de:	11 05       	cpc	r17, r1
- 4e0:	09 f0       	breq	.+2      	; 0x4e4 <.Loc.222>
+ 4e0:	09 f0       	breq	.+2      	; 0x4e4 <.Loc.218>
 
 000004e2 <L0^A>:
  4e2:	9f cf       	rjmp	.-194    	; 0x422 <.L50>
 
-000004e4 <.Loc.222>:
+000004e4 <.Loc.218>:
                         setBothStepperMode(ForwardStep);
  4e4:	8e 2d       	mov	r24, r14
  4e6:	9f 2d       	mov	r25, r15
@@ -1151,7 +1151,7 @@ void followHand(int distance){
  4fa:	90 e0       	ldi	r25, 0x00	; 0
  4fc:	0e 94 c4 02 	call	0x588	; 0x588 <setBothStepperMode>
 
-00000500 <.LBB30>:
+00000500 <.LBB15>:
 	__builtin_avr_delay_cycles(__ticks_dc);
  500:	9f ef       	ldi	r25, 0xFF	; 255
  502:	23 ed       	ldi	r18, 0xD3	; 211
@@ -1167,11 +1167,11 @@ void followHand(int distance){
 00000510 <L0^A>:
 	...
 
-00000512 <.Loc.235>:
+00000512 <.Loc.231>:
 }
  512:	e8 01       	movw	r28, r16
 
-00000514 <.Loc.236>:
+00000514 <.Loc.232>:
  514:	86 cf       	rjmp	.-244    	; 0x422 <.L50>
 
 00000516 <init_delay_timer>:
@@ -1181,34 +1181,34 @@ void init_delay_timer(){
     TCCR2A = 0;
  516:	10 92 b0 00 	sts	0x00B0, r1	; 0x8000b0 <__TEXT_REGION_LENGTH__+0x7000b0>
 
-0000051a <.Loc.240>:
+0000051a <.Loc.236>:
     TCCR2B = (0<<CS22) | (1<<CS21) | (1<<CS20);
  51a:	83 e0       	ldi	r24, 0x03	; 3
  51c:	80 93 b1 00 	sts	0x00B1, r24	; 0x8000b1 <__TEXT_REGION_LENGTH__+0x7000b1>
 
-00000520 <.Loc.242>:
+00000520 <.Loc.238>:
 
     // Disable PWM output
     OCR2A = 0;
  520:	10 92 b3 00 	sts	0x00B3, r1	; 0x8000b3 <__TEXT_REGION_LENGTH__+0x7000b3>
 
-00000524 <.Loc.244>:
+00000524 <.Loc.240>:
     OCR2B = 0;
  524:	10 92 b4 00 	sts	0x00B4, r1	; 0x8000b4 <__TEXT_REGION_LENGTH__+0x7000b4>
 
-00000528 <.Loc.246>:
+00000528 <.Loc.242>:
 
     //Overflow interrupt
     TIMSK2 = (1<<TOIE2);
  528:	81 e0       	ldi	r24, 0x01	; 1
  52a:	80 93 70 00 	sts	0x0070, r24	; 0x800070 <__TEXT_REGION_LENGTH__+0x700070>
 
-0000052e <.Loc.248>:
+0000052e <.Loc.244>:
     TCNT2 = 6;
  52e:	86 e0       	ldi	r24, 0x06	; 6
  530:	80 93 b2 00 	sts	0x00B2, r24	; 0x8000b2 <__TEXT_REGION_LENGTH__+0x7000b2>
 
-00000534 <.Loc.250>:
+00000534 <.Loc.246>:
 }
  534:	08 95       	ret
 

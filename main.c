@@ -51,6 +51,19 @@
 #define NoodstopPinBack PC4 //pin 33
 //}
 
+//{ Function list
+int checkNoodstop();
+int isStartButtonPressed();
+int checkModeSwitchState();
+void initIRSensors();
+void initLEDS();
+void initButtons();
+int checkFrontIRState();
+void followHand();
+int filterDistance();
+int checkSensors();
+//}
+
 
 void initAGV(){
     agv_ultrasoon_init();
