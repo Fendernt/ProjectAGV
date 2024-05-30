@@ -25,15 +25,38 @@
 #define BoomgaardBocht 3
 
 
-//Pins
+//{ Pins
+//IR
 #define FrontIRSensorLeftPin PA0 //pin 22
 #define FrontIRSensorRightPin PA1 //pin 23
+#define IRSensorLeft PA2 //pin 24
+#define IRSensorRight PA3 //pin 25
+
+//LEDS
+#define TreeIndicatedLEDLeft PL0 //pin 49
+#define TreeIndicatedLEDRight PL1 //pin 48
+#define TurnSignalLEDLeft PL2 //pin 47
+#define TurnSignalLEDRight PL3 //pin 46
+#define Breaklights PL4 //pin 45
+#define Headlights PL5 //pin 44
+#define NoodstopLEDFront PL6 //pin 43
+#define NoodstopLEDBack PL7 //pin 42
+
+//Buttons
+#define StartButtonPin PC0 //pin 37
+#define FollowModeSwitch PC1 //pin 36
+#define DriveModeSwitch PC2 //pin 35
+#define NoodstopPinFront PC3 //pin 34
+#define NoodstopPinBack PC4 //pin 33
+//}
 
 
 void initAGV(){
     agv_ultrasoon_init();
     initSteppermotorAVRDriver();
     initIRSensors();
+    initLEDS();
+    initButtons();
 }
 
 int main(void)
@@ -108,9 +131,25 @@ int main(void)
     return 0;
 }
 
+void initButtons(){
+    for(int i = 0; i < 5; i++){
+        DDRC &= ~(1<<i);
+        PORTC |= (1<<i);
+    }
+
+}
+
+void initLEDS(){
+    for(int i = 0; i < 8; i++){
+        PORTL |= (1<<i);
+    }
+}
+
 void initIRSensors(){
-    DDRA &= ~((1<<FrontIRSensorLeftPin) | (1<<FrontIRSensorRightPin));
-    PORTA |- (1<<FrontIRSensorLeftPin) | (1<<FrontIRSensorRightPin);
+    for(int i = 0; i < 4; i++){
+        DDRA &= ~(1<<i);
+        PORTA |= (1<<i);
+    }
 }
 
 int checkFrontIRState(){
