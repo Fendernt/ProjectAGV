@@ -65,6 +65,7 @@ int checkSensors();
 //}
 
 
+//Inits
 void initAGV(){
     agv_ultrasoon_init();
     initSteppermotorAVRDriver();
@@ -75,11 +76,10 @@ void initAGV(){
 
 int main(void)
 {
-    int mode = BoomgaardRijden;
-    int FrontDistance;
-    initAGV();
-
-    // Insert code
+    //Variables
+    int mode = BoomgaardRijden; //Active mode van de AGV
+    int FrontDistance; //Var voor de afstand vam objecten voor de AGV
+    initAGV(); //Init
 
     while(1){
 
@@ -99,14 +99,18 @@ int main(void)
             case ModeOff:
                 setBothStepperMode(Off);
 
+                //Als de startbutton is ingedrukt, kijk in welke mode de modeswitch is, en activeer die mode.
                 if(isStartButtonPressed()){
                     int switchState = checkModeSwitchState();
                     switch(switchState){
-                    case 1:
+                    case 1: //Volg mode
                         mode = Following;
                         break;
-                    case 2:
+                    case 2: //Rij mode
                         mode = BoomgaardRijden;
+                        break;
+                    case 0: //Switch staat in het midden
+                        //do nothin lol
                         break;
                     }
                 }
@@ -118,6 +122,7 @@ int main(void)
                 setBothStepperMode(Off);
 
                 //Noodstop niet meer ingedrukt, ga naar de start modus.
+                //Start mode zodat opnieuw de startknop moet worden ingedrukt.
                 if(!checkNoodstop()) {
                     mode = ModeOff;
                 }
@@ -125,6 +130,7 @@ int main(void)
 
             //Case voor hand volgen
             case Following:
+                //Check de voorafstand
                 FrontDistance = agv_ultrasoon_voor_midden;
                 int IRState = checkFrontIRState();
 
@@ -182,6 +188,7 @@ int main(void)
     return 0;
 }
 
+//Check of één van de twee noodstops is ingedrukt
 int checkNoodstop(){
     if(bit_is_clear(PINC, NoodstopPinBack) || bit_is_clear(PINC, NoodstopPinFront)){
         return 1;
@@ -189,10 +196,17 @@ int checkNoodstop(){
     return 0;
 }
 
+//Check of start knop is ingedrukt
 int isStartButtonPressed(){
     return bit_is_clear(PINC, StartButtonPin);
 }
 
+/*Check in welke positie de mode switch staat.
+    Return codes:
+    0- Switch staat in het midden
+    1- Volgen
+    2- Rijden
+*/
 int checkModeSwitchState(){
     if(bit_is_clear(PINC, FollowModeSwitch)){
         return 1; //Switch is in follow mode.
@@ -201,61 +215,93 @@ int checkModeSwitchState(){
         return 2; //Switch is in drive mode.
     }
 
-    return 0; //Dit zou niet moeten kunnen.
+    return 0; //Switch staat in het midden, geen van beide geactiveerd.
 
 }
 
+//Init buttons
 void initButtons(){
+    //Loop voor alle buttons
     for(int i = 0; i < 5; i++){
         DDRC &= ~(1<<i);
         PORTC |= (1<<i);
     }
 }
 
+//Init leds
 void initLEDS(){
+    //Loop voor alle leds
     for(int i = 0; i < 8; i++){
         PORTL |= (1<<i);
     }
 }
 
+//Init IR sensors
 void initIRSensors(){
+    //Loop voor alle IR sensors
     for(int i = 0; i < 4; i++){
         DDRA &= ~(1<<i);
         PORTA |= (1<<i);
     }
 }
 
+/*Check de IR sensors aan de voorkant
+    Return codes:
+    0- Allebij
+    1- Links
+    2- Rechts
+    3- Geen
+*/
 int checkFrontIRState(){
+    //Allebij detecteren iets, return 0
     if(bit_is_clear(PINA, FrontIRSensorLeftPin) && bit_is_clear(PINA, FrontIRSensorRightPin)){
         return 0;
     }
 
+    //Linker sensor detecteerd iets, return 1
     if(bit_is_clear(PINA, FrontIRSensorLeftPin)){
         return 1;
     }
 
+    //Rechter sensor detecteert iets, return 2
     if(bit_is_clear(PINA, FrontIRSensorRightPin)){
         return 2;
     }
 
+    //Return 3
     return 3;
 }
 
+
+/*
+    Check de waarde van de sonic sensors voor het controlleren van bomen.
+    Return codes:
+    0-Er staat iets voor de AGV
+    1-Er is een boom links van de AGV
+    2-Er is een boom rechts van de AGV
+    3-Er is niks gemeten
+*/
 int checkSensors(){
+    //Variable om te kijken of er al iets is gemeten
     static int leftPreviousState = 0;
     static int rightPreviousState = 0;
 
+    //Kijken of er iets voor de AGV staat.
     if(maxDistance > filterDistance(agv_ultrasoon_voor_midden)){
         return 0;
     }
 
+    //Kijken of er iets voor de AGV staat, en er nog niks is gemeten
     if((TreeDistance > filterDistance(agv_ultrasoon_boom_links)) && !leftPreviousState){
+        //Variable zetten om te onthouden dat deze al is gemeten.
         leftPreviousState = 1;
         return 1;
     } else if(leftPreviousState && (TreeDistance < filterDistance(agv_ultrasoon_boom_links)) ){
+        //Er word geen boom meer gemeten dus we zijn er voorbij gereden, variable weer uitzetten om de te zoeken naar de volgende boom.
         leftPreviousState = 0;
     }
 
+    //Werkt hetzelfde als hierboven maar dan voor de rechterkant van de AGV
     if((TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)) && !rightPreviousState){
         rightPreviousState = 1;
         return 2;
@@ -263,10 +309,22 @@ int checkSensors(){
         rightPreviousState = 0;
     }
 
+    //Er is niks gemeten
     return 3;
 
 }
 
+/*
+    Filter de waardes van de sonic sensors
+
+    Als er iets te dichtbij de sonic sensor is word er 561 gegeven,
+    verander dit naar 1 zodat de rest van de code weet dat er iets dichtbij staat.
+
+    Als er iets te ver weg van de sonic sensor is de waarde tussen de 500 & 660,
+    dus verander dit naar een groot waarde, in dit geval 100.
+
+    Anders return de originele waarde.
+*/
 int filterDistance(int distance){
     //Alle waardes boven 200 zijn bs anyways
     if(distance == 561){
@@ -277,6 +335,7 @@ int filterDistance(int distance){
     return distance;
 }
 
+//Code voor het volgen van de hand op de juiste afstand
 void followHand(int distance){
 
     //Check voor als er iets TE ver weg staat en te negeren.
@@ -285,7 +344,7 @@ void followHand(int distance){
         return;
     }
 
-    //Check voor juiste afstand
+    //Check voor juiste afstand met speelruimte
     if((distance < maxDistance) && (distance > minDistance)){
             setBothStepperMode(Off);
             return;
