@@ -1,9 +1,9 @@
 #include <avr/interrupt.h>
 #include <avr/io.h>
 
-volatile uint16_t agv_ultrasoon_boom_links = 0;
-volatile uint16_t agv_ultrasoon_boom_rechts = 0;
-volatile uint16_t agv_ultrasoon_voor_midden = 0;
+volatile uint16_t agv_ultrasoon_boom_links = 0; //pin A10
+volatile uint16_t agv_ultrasoon_boom_rechts = 0; //pin A9
+volatile uint16_t agv_ultrasoon_voor_midden = 0; //pin A12
 volatile uint8_t agv_ultrasoon_current_sensor = 2;
 
 void agv_ultrasoon_init()

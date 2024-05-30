@@ -10,9 +10,10 @@
 #include "SteppermotorAVRDriver.h"
 #include "Ultrasone_sensor.h"
 
-#define distanceToFollow 20
-#define dAccuracy 3
-#define TreeDistance 20
+#define distanceToCheck 50
+#define distanceToFollow 12
+#define dAccuracy 2
+#define TreeDistance 10
 
 
 #define minDistance (distanceToFollow - dAccuracy)
@@ -24,9 +25,15 @@
 #define BoomgaardBocht 3
 
 
+//Pins
+#define FrontIRSensorLeftPin PA0 //pin 22
+#define FrontIRSensorRightPin PA1 //pin 23
+
+
 void initAGV(){
     agv_ultrasoon_init();
     initSteppermotorAVRDriver();
+    initIRSensors();
 }
 
 int main(void)
@@ -47,7 +54,24 @@ int main(void)
 
             case Following:
                 FrontDistance = agv_ultrasoon_voor_midden;
-                followHand(filterDistance(FrontDistance));
+                int IRState = checkFrontIRState();
+
+                switch(IRState){
+                    case 0: // Allebij de sensors aan dus zet motors uit
+                        setBothStepperMode(Off);
+                        break;
+                    case 1: //Linker IR Sensor activated
+                        setStepperMode(rightMotor, BackwardStep);
+                        setStepperMode(leftMotor, Off);
+                        break;
+                    case 2: //Rechter IR Sensor activated
+                        setStepperMode(leftMotor, BackwardStep);
+                        setStepperMode(rightMotor, Off);
+                        break;
+                    case 3: //Geen IR sensor activated
+                        followHand(filterDistance(FrontDistance));
+                        break;
+                }
                 break;
 
             case BoomgaardRijden:
@@ -70,13 +94,11 @@ int main(void)
                         break;
                 }
 
-
-
-
                 break;
 
             case BoomgaardBocht:
-
+                setStepperMode(leftMotor, ForwardStep);
+                setStepperMode(rightMotor, BackwardStep);
                 break;
         }
 
@@ -86,14 +108,34 @@ int main(void)
     return 0;
 }
 
+void initIRSensors(){
+    DDRA &= ~((1<<FrontIRSensorLeftPin) | (1<<FrontIRSensorRightPin));
+    PORTA |- (1<<FrontIRSensorLeftPin) | (1<<FrontIRSensorRightPin);
+}
+
+int checkFrontIRState(){
+    if(bit_is_clear(PINA, FrontIRSensorLeftPin) && bit_is_clear(PINA, FrontIRSensorRightPin)){
+        return 0;
+    }
+
+    if(bit_is_clear(PINA, FrontIRSensorLeftPin)){
+        return 1;
+    }
+
+    if(bit_is_clear(PINA, FrontIRSensorRightPin)){
+        return 2;
+    }
+
+    return 3;
+}
 
 int checkSensors(){
     static int leftPreviousState = 0;
     static int rightPreviousState = 0;
 
-    /*if(maxDistance > filterDistance(agv_ultrasoon_voor_midden)){
+    if(maxDistance > filterDistance(agv_ultrasoon_voor_midden)){
         return 0;
-    }*/
+    }
 
     if((TreeDistance > filterDistance(agv_ultrasoon_boom_links)) && !leftPreviousState){
         leftPreviousState = 1;
@@ -102,9 +144,12 @@ int checkSensors(){
         leftPreviousState = 0;
     }
 
-    //if(TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)){
-      //  return 2;
-    //}
+    if((TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)) && !rightPreviousState){
+        rightPreviousState = 1;
+        return 2;
+    } else if(rightPreviousState && (TreeDistance < filterDistance(agv_ultrasoon_boom_rechts)) ){
+        rightPreviousState = 0;
+    }
 
     return 3;
 
@@ -112,23 +157,35 @@ int checkSensors(){
 
 int filterDistance(int distance){
     //Alle waardes boven 200 zijn bs anyways
-    if(distance > 200){
+    if(distance == 561){
         distance = 1;
+    } else if(distance > 500){
+        distance = 100;
     }
     return distance;
 }
 
 void followHand(int distance){
+
+    //Check voor als er iets TE ver weg staat en te negeren.
+    if(distance > distanceToCheck){
+        setBothStepperMode(Off);
+        return;
+    }
+
+    //Check voor juiste afstand
     if((distance < maxDistance) && (distance > minDistance)){
             setBothStepperMode(Off);
             return;
     }
 
+    //Check voor dichtbij
     if(distance < minDistance){
         setBothStepperMode(BackwardStep);
         return;
     }
 
+    //check voor verweg
     if(distance > maxDistance){
         setBothStepperMode(ForwardStep);
     }
