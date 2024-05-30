@@ -23,6 +23,7 @@
 #define Following 1
 #define BoomgaardRijden 2
 #define BoomgaardBocht 3
+#define Noodstop 4
 
 
 //{ Pins
@@ -69,12 +70,47 @@ int main(void)
 
     while(1){
 
+        //Check voor de noodstop.
+        if(checkNoodstop()){
+            mode = Noodstop;
+        }
+
+        //Check voor de uit knop (in dit geval telt de start knop ook als stop knop als de AVG ergens mee bezig is)
+        if(mode != Noodstop && mode != ModeOff && isStartButtonPressed()){
+            mode = ModeOff;
+        }
 
         switch(mode){
+
+            //Case voor uit.
             case ModeOff:
                 setBothStepperMode(Off);
+
+                if(isStartButtonPressed()){
+                    int switchState = checkModeSwitchState();
+                    switch(switchState){
+                    case 1:
+                        mode = Following;
+                        break;
+                    case 2:
+                        mode = BoomgaardRijden;
+                        break;
+                    }
+                }
+
                 break;
 
+            //Case voor noodstop
+            case Noodstop:
+                setBothStepperMode(Off);
+
+                //Noodstop niet meer ingedrukt, ga naar de start modus.
+                if(!checkNoodstop()) {
+                    mode = ModeOff;
+                }
+                break;
+
+            //Case voor hand volgen
             case Following:
                 FrontDistance = agv_ultrasoon_voor_midden;
                 int IRState = checkFrontIRState();
@@ -97,6 +133,7 @@ int main(void)
                 }
                 break;
 
+            //Case voor door de boomgaard rijden
             case BoomgaardRijden:
 
                 int WorldState = checkSensors();
@@ -119,6 +156,7 @@ int main(void)
 
                 break;
 
+            //Case voor bochten maken
             case BoomgaardBocht:
                 setStepperMode(leftMotor, ForwardStep);
                 setStepperMode(rightMotor, BackwardStep);
@@ -131,12 +169,34 @@ int main(void)
     return 0;
 }
 
+int checkNoodstop(){
+    if(bit_is_clear(PINC, NoodstopPinBack) || bit_is_clear(PINC, NoodstopPinFront)){
+        return 1;
+    }
+    return 0;
+}
+
+int isStartButtonPressed(){
+    return bit_is_clear(PINC, StartButtonPin);
+}
+
+int checkModeSwitchState(){
+    if(bit_is_clear(PINC, FollowModeSwitch)){
+        return 1; //Switch is in follow mode.
+    }
+    if(bit_is_clear(PINC, DriveModeSwitch)){
+        return 2; //Switch is in drive mode.
+    }
+
+    return 0; //Dit zou niet moeten kunnen.
+
+}
+
 void initButtons(){
     for(int i = 0; i < 5; i++){
         DDRC &= ~(1<<i);
         PORTC |= (1<<i);
     }
-
 }
 
 void initLEDS(){
