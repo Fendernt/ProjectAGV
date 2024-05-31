@@ -17,21 +17,21 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, OCTETS
   6 .debug_aranges 000000d8  00000000  00000000  00000eb0  2**3
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  7 .debug_info   00001862  00000000  00000000  00000f88  2**0
+  7 .debug_info   00001865  00000000  00000000  00000f88  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  8 .debug_abbrev 00001105  00000000  00000000  000027ea  2**0
+  8 .debug_abbrev 00001105  00000000  00000000  000027ed  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
-  9 .debug_line   0000129b  00000000  00000000  000038ef  2**0
+  9 .debug_line   0000129b  00000000  00000000  000038f2  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 10 .debug_frame  000002dc  00000000  00000000  00004b8c  2**2
+ 10 .debug_frame  000002dc  00000000  00000000  00004b90  2**2
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 11 .debug_str    00000874  00000000  00000000  00004e68  2**0
+ 11 .debug_str    00000874  00000000  00000000  00004e6c  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 12 .debug_line_str 00000211  00000000  00000000  000056dc  2**0
+ 12 .debug_line_str 000001cc  00000000  00000000  000056e0  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 13 .debug_loclists 00000247  00000000  00000000  000058ed  2**0
+ 13 .debug_loclists 00000247  00000000  00000000  000058ac  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
- 14 .debug_rnglists 00000021  00000000  00000000  00005b34  2**0
+ 14 .debug_rnglists 00000021  00000000  00000000  00005af3  2**0
                   CONTENTS, READONLY, DEBUGGING, OCTETS
 
 Disassembly of section .text:
@@ -176,10 +176,10 @@ Disassembly of section .text:
  126:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000012a <checkNoodstop>:
-
     return 0;
 }
 
+//Check of één van de twee noodstops is ingedrukt
 int checkNoodstop(){
     if(bit_is_clear(PINC, NoodstopPinBack) || bit_is_clear(PINC, NoodstopPinFront)){
  12a:	34 9b       	sbis	0x06, 4	; 6
@@ -211,6 +211,7 @@ int checkNoodstop(){
 
 00000146 <isStartButtonPressed>:
 
+//Check of start knop is ingedrukt
 int isStartButtonPressed(){
     return bit_is_clear(PINC, StartButtonPin);
  146:	86 b1       	in	r24, 0x06	; 6
@@ -224,7 +225,10 @@ int isStartButtonPressed(){
  150:	08 95       	ret
 
 00000152 <checkModeSwitchState>:
-
+    0- Switch staat in het midden
+    1- Volgen
+    2- Rijden
+*/
 int checkModeSwitchState(){
     if(bit_is_clear(PINC, FollowModeSwitch)){
  152:	31 9b       	sbis	0x06, 1	; 6
@@ -257,14 +261,16 @@ int checkModeSwitchState(){
         return 2; //Switch is in drive mode.
     }
 
-    return 0; //Dit zou niet moeten kunnen.
+    return 0; //Switch staat in het midden, geen van beide geactiveerd.
 
 }
  170:	08 95       	ret
 
 00000172 <initButtons>:
 
+//Init buttons
 void initButtons(){
+    //Loop voor alle buttons
     for(int i = 0; i < 5; i++){
  172:	80 e0       	ldi	r24, 0x00	; 0
  174:	90 e0       	ldi	r25, 0x00	; 0
@@ -320,7 +326,9 @@ void initButtons(){
 
 000001a2 <initLEDS>:
 
+//Init leds
 void initLEDS(){
+    //Loop voor alle leds
     for(int i = 0; i < 8; i++){
  1a2:	80 e0       	ldi	r24, 0x00	; 0
  1a4:	90 e0       	ldi	r25, 0x00	; 0
@@ -370,7 +378,9 @@ void initLEDS(){
 
 000001cc <initIRSensors>:
 
+//Init IR sensors
 void initIRSensors(){
+    //Loop voor alle IR sensors
     for(int i = 0; i < 4; i++){
  1cc:	80 e0       	ldi	r24, 0x00	; 0
  1ce:	90 e0       	ldi	r25, 0x00	; 0
@@ -449,8 +459,11 @@ void initIRSensors(){
  210:	08 95       	ret
 
 00000212 <checkFrontIRState>:
-
+    2- Rechts
+    3- Geen
+*/
 int checkFrontIRState(){
+    //Allebij detecteren iets, return 0
     if(bit_is_clear(PINA, FrontIRSensorLeftPin) && bit_is_clear(PINA, FrontIRSensorRightPin)){
  212:	00 99       	sbic	0x00, 0	; 0
  214:	02 c0       	rjmp	.+4      	; 0x21a <.L19>
@@ -463,6 +476,7 @@ int checkFrontIRState(){
         return 0;
     }
 
+    //Linker sensor detecteerd iets, return 1
     if(bit_is_clear(PINA, FrontIRSensorLeftPin)){
  21a:	00 9b       	sbis	0x00, 0	; 0
  21c:	08 c0       	rjmp	.+16     	; 0x22e <.L22>
@@ -471,6 +485,7 @@ int checkFrontIRState(){
         return 1;
     }
 
+    //Rechter sensor detecteert iets, return 2
     if(bit_is_clear(PINA, FrontIRSensorRightPin)){
  21e:	01 9b       	sbis	0x00, 1	; 0
  220:	09 c0       	rjmp	.+18     	; 0x234 <.L23>
@@ -479,6 +494,7 @@ int checkFrontIRState(){
         return 2;
     }
 
+    //Return 3
     return 3;
  222:	83 e0       	ldi	r24, 0x03	; 3
  224:	90 e0       	ldi	r25, 0x00	; 0
@@ -506,11 +522,11 @@ int checkFrontIRState(){
  238:	08 95       	ret
 
 0000023a <filterDistance>:
+    Als er iets te ver weg van de sonic sensor is de waarde tussen de 500 & 660,
+    dus verander dit naar een groot waarde, in dit geval 100.
 
-    return 3;
-
-}
-
+    Anders return de originele waarde.
+*/
 int filterDistance(int distance){
  23a:	28 2f       	mov	r18, r24
  23c:	39 2f       	mov	r19, r25
@@ -695,6 +711,7 @@ int filterDistance(int distance){
 
 0000032a <followHand>:
 
+//Code voor het volgen van de hand op de juiste afstand
 void followHand(int distance){
  32a:	28 2f       	mov	r18, r24
  32c:	39 2f       	mov	r19, r25
@@ -712,7 +729,7 @@ void followHand(int distance){
         return;
     }
 
-    //Check voor juiste afstand
+    //Check voor juiste afstand met speelruimte
     if((distance < maxDistance) && (distance > minDistance)){
  334:	c9 01       	movw	r24, r18
 
@@ -794,11 +811,11 @@ void followHand(int distance){
  370:	eb cf       	rjmp	.-42     	; 0x348 <.L40>
 
 00000372 <main>:
-    initAGV();
+    initAGV(); //Init
  372:	0e 94 fe 00 	call	0x1fc	; 0x1fc <initAGV>
 
 00000376 <.LVL31>:
-    int mode = BoomgaardRijden;
+    int mode = BoomgaardRijden; //Active mode van de AGV
  376:	c2 e0       	ldi	r28, 0x02	; 2
  378:	d0 e0       	ldi	r29, 0x00	; 0
 
@@ -1213,6 +1230,12 @@ void init_delay_timer(){
  534:	08 95       	ret
 
 00000536 <setStepperMode>:
+void setBothStepperMode(int mode){
+    setStepperMode(leftMotor, mode);
+    setStepperMode(rightMotor, mode);
+}
+
+void setStepperMode(int motor, int mode){
  536:	28 2f       	mov	r18, r24
  538:	39 2f       	mov	r19, r25
  53a:	86 2f       	mov	r24, r22
@@ -1221,6 +1244,9 @@ void init_delay_timer(){
  53c:	97 2f       	mov	r25, r23
 
 0000053e <.Loc.3>:
+
+    int state;
+    if(mode == Off){
  53e:	51 e0       	ldi	r21, 0x01	; 1
  540:	40 e0       	ldi	r20, 0x00	; 0
  542:	81 30       	cpi	r24, 0x01	; 1
@@ -1228,6 +1254,12 @@ void init_delay_timer(){
  546:	69 f0       	breq	.+26     	; 0x562 <.L8>
 
 00000548 <.L2>:
+        state = 1;
+    }
+
+
+    int** motorLoop;
+    switch(motor){
  548:	2a 30       	cpi	r18, 0x0A	; 10
  54a:	31 05       	cpc	r19, r1
  54c:	61 f0       	breq	.+24     	; 0x566 <.L3>
@@ -1236,56 +1268,81 @@ void init_delay_timer(){
  552:	81 f0       	breq	.+32     	; 0x574 <.L4>
 
 00000554 <.L5>:
+            motorLoop = &rightMotorLoop;
+            rightMotorEnabled = state;
+            break;
+    }
+
+    switch(mode){
  554:	02 97       	sbiw	r24, 0x02	; 2
  556:	a9 f0       	breq	.+42     	; 0x582 <.L9>
  558:	88 e1       	ldi	r24, 0x18	; 24
  55a:	92 e0       	ldi	r25, 0x02	; 2
 
 0000055c <.L6>:
+        default:
+        case ForwardStep:
+            *motorLoop = &LoopForward;
  55c:	91 83       	std	Z+1, r25	; 0x01
  55e:	80 83       	st	Z, r24
 
 00000560 <.Loc.10>:
+            break;
+        case BackwardStep:
+            *motorLoop = &LoopBackwards;
+            break;
+    }
+}
  560:	08 95       	ret
 
 00000562 <.L8>:
+    if(mode == Off){
  562:	50 e0       	ldi	r21, 0x00	; 0
  564:	f1 cf       	rjmp	.-30     	; 0x548 <.L2>
 
 00000566 <.L3>:
+            leftMotorEnabled = state;
  566:	50 93 02 02 	sts	0x0202, r21	; 0x800202 <leftMotorEnabled>
  56a:	40 93 03 02 	sts	0x0203, r20	; 0x800203 <leftMotorEnabled+0x1>
 
 0000056e <.Loc.15>:
+            motorLoop = &leftMotorLoop;
  56e:	e6 e0       	ldi	r30, 0x06	; 6
  570:	f2 e0       	ldi	r31, 0x02	; 2
 
 00000572 <.Loc.17>:
+            break;
  572:	f0 cf       	rjmp	.-32     	; 0x554 <.L5>
 
 00000574 <.L4>:
+            rightMotorEnabled = state;
  574:	50 93 00 02 	sts	0x0200, r21	; 0x800200 <rightMotorEnabled>
  578:	40 93 01 02 	sts	0x0201, r20	; 0x800201 <rightMotorEnabled+0x1>
 
 0000057c <.Loc.21>:
+            motorLoop = &rightMotorLoop;
  57c:	e4 e0       	ldi	r30, 0x04	; 4
  57e:	f2 e0       	ldi	r31, 0x02	; 2
 
 00000580 <.Loc.23>:
+            break;
  580:	e9 cf       	rjmp	.-46     	; 0x554 <.L5>
 
 00000582 <.L9>:
+    switch(mode){
  582:	88 e0       	ldi	r24, 0x08	; 8
  584:	92 e0       	ldi	r25, 0x02	; 2
  586:	ea cf       	rjmp	.-44     	; 0x55c <.L6>
 
 00000588 <setBothStepperMode>:
+void setBothStepperMode(int mode){
  588:	cf 93       	push	r28
  58a:	df 93       	push	r29
  58c:	d8 2f       	mov	r29, r24
  58e:	c9 2f       	mov	r28, r25
 
 00000590 <.Loc.27>:
+    setStepperMode(leftMotor, mode);
  590:	68 2f       	mov	r22, r24
  592:	79 2f       	mov	r23, r25
  594:	8a e0       	ldi	r24, 0x0A	; 10
@@ -1295,6 +1352,7 @@ void init_delay_timer(){
  598:	0e 94 9b 02 	call	0x536	; 0x536 <setStepperMode>
 
 0000059c <.LVL10>:
+    setStepperMode(rightMotor, mode);
  59c:	6d 2f       	mov	r22, r29
  59e:	7c 2f       	mov	r23, r28
  5a0:	8b e0       	ldi	r24, 0x0B	; 11
@@ -1302,38 +1360,63 @@ void init_delay_timer(){
  5a4:	0e 94 9b 02 	call	0x536	; 0x536 <setStepperMode>
 
 000005a8 <.LVL11>:
+}
  5a8:	df 91       	pop	r29
  5aa:	cf 91       	pop	r28
  5ac:	08 95       	ret
 
 000005ae <init_timer>:
+
+//Clockspeed = 16.000.000 / 250 / 64 = 1.000
+#define Clockspeed 1000
+void init_timer(){
+    // Use mode 0, clkdiv = 64
+    TCCR0A = 0;
  5ae:	14 bc       	out	0x24, r1	; 36
 
 000005b0 <.Loc.34>:
+    TCCR0B = (0<<CS02) | (1<<CS01) | (1<<CS00);
  5b0:	83 e0       	ldi	r24, 0x03	; 3
  5b2:	85 bd       	out	0x25, r24	; 37
 
 000005b4 <.Loc.36>:
+
+    // Disable PWM output
+    OCR0A = 0;
  5b4:	17 bc       	out	0x27, r1	; 39
 
 000005b6 <.Loc.38>:
+    OCR0B = 0;
  5b6:	18 bc       	out	0x28, r1	; 40
 
 000005b8 <.Loc.40>:
+
+    //Overflow interrupt
+    TIMSK0 = (1<<TOIE0);
  5b8:	81 e0       	ldi	r24, 0x01	; 1
  5ba:	80 93 6e 00 	sts	0x006E, r24	; 0x80006e <__TEXT_REGION_LENGTH__+0x70006e>
 
 000005be <.Loc.42>:
+    TCNT0 = 6;
  5be:	86 e0       	ldi	r24, 0x06	; 6
  5c0:	86 bd       	out	0x26, r24	; 38
 
 000005c2 <.Loc.44>:
+
+    sei();
  5c2:	78 94       	sei
 
 000005c4 <.Loc.45>:
+}
  5c4:	08 95       	ret
 
 000005c6 <initMotorpins>:
+}
+
+
+void initMotorpins(){
+    for(int i = MotorLeftStartpin; i < MotorLeftStartpin+4; i++){
+        MotorLeftDDR |= (1<<i);
  5c6:	80 9a       	sbi	0x10, 0	; 16
 
 000005c8 <.Loc.52>:
@@ -1346,6 +1429,10 @@ void init_delay_timer(){
  5cc:	83 9a       	sbi	0x10, 3	; 16
 
 000005ce <.LBB3>:
+    }
+
+    for(int i = MotorRightStartpin; i < MotorRightStartpin+4; i++){
+        MotorRightDDR |= (1<<i);
  5ce:	84 9a       	sbi	0x10, 4	; 16
 
 000005d0 <.Loc.69>:
@@ -1358,12 +1445,16 @@ void init_delay_timer(){
  5d4:	87 9a       	sbi	0x10, 7	; 16
 
 000005d6 <.LBE3>:
+    }
+}
  5d6:	08 95       	ret
 
 000005d8 <initSteppermotorAVRDriver>:
+    initMotorpins();
  5d8:	0e 94 e3 02 	call	0x5c6	; 0x5c6 <initMotorpins>
 
 000005dc <.LVL21>:
+    setStepperMode(leftMotor, ForwardStep);
  5dc:	60 e0       	ldi	r22, 0x00	; 0
  5de:	70 e0       	ldi	r23, 0x00	; 0
  5e0:	8a e0       	ldi	r24, 0x0A	; 10
@@ -1371,17 +1462,24 @@ void init_delay_timer(){
  5e4:	0e 94 9b 02 	call	0x536	; 0x536 <setStepperMode>
 
 000005e8 <.LVL22>:
+    init_timer();
  5e8:	0e 94 d7 02 	call	0x5ae	; 0x5ae <init_timer>
 
 000005ec <.LVL23>:
+}
  5ec:	08 95       	ret
 
 000005ee <LeftStepperNextStep>:
+
+void LeftStepperNextStep(){
+    static int position = 0;
+    MotorLeftPort &= ~(0b1111<< MotorLeftStartpin);
  5ee:	81 b3       	in	r24, 0x11	; 17
  5f0:	80 7f       	andi	r24, 0xF0	; 240
  5f2:	81 bb       	out	0x11, r24	; 17
 
 000005f4 <.Loc.93>:
+    MotorLeftPort |= ((*leftMotorLoop)[position] << MotorLeftStartpin);
  5f4:	81 b3       	in	r24, 0x11	; 17
 
 000005f6 <.Loc.94>:
@@ -1400,6 +1498,7 @@ void init_delay_timer(){
  612:	81 bb       	out	0x11, r24	; 17
 
 00000614 <.Loc.96>:
+    position++;
  614:	80 91 34 02 	lds	r24, 0x0234	; 0x800234 <position.1>
  618:	90 91 35 02 	lds	r25, 0x0235	; 0x800235 <position.1+0x1>
  61c:	9c 01       	movw	r18, r24
@@ -1407,14 +1506,17 @@ void init_delay_timer(){
  620:	3f 4f       	sbci	r19, 0xFF	; 255
 
 00000622 <.Loc.98>:
+    if(position == LoopLength) position = 0;
  622:	07 97       	sbiw	r24, 0x07	; 7
  624:	29 f0       	breq	.+10     	; 0x630 <.L17>
 
 00000626 <.L15>:
+    position++;
  626:	30 93 35 02 	sts	0x0235, r19	; 0x800235 <position.1+0x1>
  62a:	20 93 34 02 	sts	0x0234, r18	; 0x800234 <position.1>
 
 0000062e <.Loc.101>:
+}
  62e:	08 95       	ret
 
 00000630 <.L17>:
@@ -1423,11 +1525,16 @@ void init_delay_timer(){
  634:	f8 cf       	rjmp	.-16     	; 0x626 <.L15>
 
 00000636 <RightStepperNextStep>:
+
+void RightStepperNextStep(){
+    static int position = 0;
+    MotorRightPort &= ~(0b1111<<MotorRightStartpin);
  636:	81 b3       	in	r24, 0x11	; 17
  638:	8f 70       	andi	r24, 0x0F	; 15
  63a:	81 bb       	out	0x11, r24	; 17
 
 0000063c <.Loc.106>:
+    MotorRightPort |= ((*rightMotorLoop)[position] << MotorRightStartpin);
  63c:	81 b3       	in	r24, 0x11	; 17
 
 0000063e <.Loc.107>:
@@ -1455,6 +1562,7 @@ void init_delay_timer(){
  668:	81 bb       	out	0x11, r24	; 17
 
 0000066a <.Loc.110>:
+    position++;
  66a:	80 91 32 02 	lds	r24, 0x0232	; 0x800232 <position.0>
  66e:	90 91 33 02 	lds	r25, 0x0233	; 0x800233 <position.0+0x1>
  672:	9c 01       	movw	r18, r24
@@ -1462,14 +1570,17 @@ void init_delay_timer(){
  676:	3f 4f       	sbci	r19, 0xFF	; 255
 
 00000678 <.Loc.112>:
+    if(position == LoopLength) position = 0;
  678:	07 97       	sbiw	r24, 0x07	; 7
  67a:	29 f0       	breq	.+10     	; 0x686 <.L21>
 
 0000067c <.L19>:
+    position++;
  67c:	30 93 33 02 	sts	0x0233, r19	; 0x800233 <position.0+0x1>
  680:	20 93 32 02 	sts	0x0232, r18	; 0x800232 <position.0>
 
 00000684 <.Loc.115>:
+}
  684:	08 95       	ret
 
 00000686 <.L21>:
@@ -1478,6 +1589,9 @@ void init_delay_timer(){
  68a:	f8 cf       	rjmp	.-16     	; 0x67c <.L19>
 
 0000068c <__vector_23>:
+
+
+ISR(TIMER0_OVF_vect){
  68c:	1f 92       	push	r1
  68e:	0f 92       	push	r0
  690:	0f b6       	in	r0, 0x3f	; 63
@@ -1499,22 +1613,27 @@ void init_delay_timer(){
  6b0:	ff 93       	push	r31
 
 000006b2 <.Loc.117>:
+    if(leftMotorEnabled) LeftStepperNextStep();
  6b2:	80 91 02 02 	lds	r24, 0x0202	; 0x800202 <leftMotorEnabled>
  6b6:	90 91 03 02 	lds	r25, 0x0203	; 0x800203 <leftMotorEnabled+0x1>
  6ba:	89 2b       	or	r24, r25
  6bc:	d9 f4       	brne	.+54     	; 0x6f4 <.L25>
 
 000006be <.L23>:
+    if(rightMotorEnabled) RightStepperNextStep();
  6be:	80 91 00 02 	lds	r24, 0x0200	; 0x800200 <rightMotorEnabled>
  6c2:	90 91 01 02 	lds	r25, 0x0201	; 0x800201 <rightMotorEnabled+0x1>
  6c6:	89 2b       	or	r24, r25
  6c8:	c1 f4       	brne	.+48     	; 0x6fa <.L26>
 
 000006ca <.L24>:
+
+    TCNT0 = 6;
  6ca:	86 e0       	ldi	r24, 0x06	; 6
  6cc:	86 bd       	out	0x26, r24	; 38
 
 000006ce <.Loc.123>:
+}
  6ce:	ff 91       	pop	r31
  6d0:	ef 91       	pop	r30
  6d2:	bf 91       	pop	r27
@@ -1536,21 +1655,30 @@ void init_delay_timer(){
  6f2:	18 95       	reti
 
 000006f4 <.L25>:
+    if(leftMotorEnabled) LeftStepperNextStep();
  6f4:	0e 94 f7 02 	call	0x5ee	; 0x5ee <LeftStepperNextStep>
 
 000006f8 <.LVL24>:
  6f8:	e2 cf       	rjmp	.-60     	; 0x6be <.L23>
 
 000006fa <.L26>:
+    if(rightMotorEnabled) RightStepperNextStep();
  6fa:	0e 94 1b 03 	call	0x636	; 0x636 <RightStepperNextStep>
 
 000006fe <.LVL25>:
  6fe:	e5 cf       	rjmp	.-54     	; 0x6ca <.L24>
 
 00000700 <agv_ultrasoon_init>:
+volatile uint16_t agv_ultrasoon_voor_midden = 0; //pin A12
+volatile uint8_t agv_ultrasoon_current_sensor = 2;
+
+void agv_ultrasoon_init()
+{
+    cli();
  700:	f8 94       	cli
 
 00000702 <.Loc.2>:
+    TCCR3A |= (1<<COM3A1) | (1<<WGM31);
  702:	e0 e9       	ldi	r30, 0x90	; 144
  704:	f0 e0       	ldi	r31, 0x00	; 0
  706:	80 81       	ld	r24, Z
@@ -1560,6 +1688,7 @@ void init_delay_timer(){
  70a:	80 83       	st	Z, r24
 
 0000070c <.Loc.4>:
+    TCCR3B |= (1<<WGM33) | (1<<CS31) | (1<<WGM32);//wgm33 wgm32 wgm31
  70c:	e1 e9       	ldi	r30, 0x91	; 145
  70e:	f0 e0       	ldi	r31, 0x00	; 0
  710:	80 81       	ld	r24, Z
@@ -1569,27 +1698,32 @@ void init_delay_timer(){
  714:	80 83       	st	Z, r24
 
 00000716 <.Loc.6>:
+    ICR3 = 32768;
  716:	80 e0       	ldi	r24, 0x00	; 0
  718:	90 e8       	ldi	r25, 0x80	; 128
  71a:	90 93 97 00 	sts	0x0097, r25	; 0x800097 <__TEXT_REGION_LENGTH__+0x700097>
  71e:	80 93 96 00 	sts	0x0096, r24	; 0x800096 <__TEXT_REGION_LENGTH__+0x700096>
 
 00000722 <.Loc.8>:
+    OCR3A = 20;//10microsec
  722:	84 e1       	ldi	r24, 0x14	; 20
  724:	90 e0       	ldi	r25, 0x00	; 0
  726:	90 93 99 00 	sts	0x0099, r25	; 0x800099 <__TEXT_REGION_LENGTH__+0x700099>
  72a:	80 93 98 00 	sts	0x0098, r24	; 0x800098 <__TEXT_REGION_LENGTH__+0x700098>
 
 0000072e <.Loc.10>:
+    OCR3B = 5500;// (10microsec + 480microsec+ marge) *2
  72e:	8c e7       	ldi	r24, 0x7C	; 124
  730:	95 e1       	ldi	r25, 0x15	; 21
  732:	90 93 9b 00 	sts	0x009B, r25	; 0x80009b <__TEXT_REGION_LENGTH__+0x70009b>
  736:	80 93 9a 00 	sts	0x009A, r24	; 0x80009a <__TEXT_REGION_LENGTH__+0x70009a>
 
 0000073a <.Loc.12>:
+    DDRE |= (1<<PE3);
  73a:	6b 9a       	sbi	0x0d, 3	; 13
 
 0000073c <.Loc.14>:
+    TIMSK3 |= (1<<ICIE3) | (1<<OCIE3B);
  73c:	e1 e7       	ldi	r30, 0x71	; 113
  73e:	f0 e0       	ldi	r31, 0x00	; 0
  740:	80 81       	ld	r24, Z
@@ -1599,6 +1733,8 @@ void init_delay_timer(){
  744:	80 83       	st	Z, r24
 
 00000746 <.Loc.16>:
+    //pin change interrupt:
+    PCICR |= (1<<PCIE2);//enables pci 16 tot 23
  746:	e8 e6       	ldi	r30, 0x68	; 104
  748:	f0 e0       	ldi	r31, 0x00	; 0
  74a:	80 81       	ld	r24, Z
@@ -1608,12 +1744,17 @@ void init_delay_timer(){
  74e:	80 83       	st	Z, r24
 
 00000750 <.Loc.18>:
+    sei();
  750:	78 94       	sei
 
 00000752 <.Loc.19>:
+}
  752:	08 95       	ret
 
 00000754 <__vector_33>:
+
+ISR(TIMER3_COMPB_vect)
+{
  754:	8f 93       	push	r24
  756:	8f b7       	in	r24, 0x3f	; 63
  758:	8f 93       	push	r24
@@ -1623,6 +1764,7 @@ void init_delay_timer(){
  760:	ff 93       	push	r31
 
 00000762 <.Loc.21>:
+    agv_ultrasoon_current_sensor = (agv_ultrasoon_current_sensor<<1);
  762:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
  766:	88 0f       	add	r24, r24
 
@@ -1630,6 +1772,7 @@ void init_delay_timer(){
  768:	80 93 28 02 	sts	0x0228, r24	; 0x800228 <agv_ultrasoon_current_sensor>
 
 0000076c <.Loc.24>:
+    if (agv_ultrasoon_current_sensor == (1<<6))//0b00100000
  76c:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 00000770 <.Loc.26>:
@@ -1637,10 +1780,17 @@ void init_delay_timer(){
  772:	89 f0       	breq	.+34     	; 0x796 <.L4>
 
 00000774 <.L3>:
+    {
+        agv_ultrasoon_current_sensor = 2;
+
+    }
+    PCMSK2 = agv_ultrasoon_current_sensor;
  774:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
  778:	80 93 6d 00 	sts	0x006D, r24	; 0x80006d <__TEXT_REGION_LENGTH__+0x70006d>
 
 0000077c <.Loc.29>:
+    //PORTA = agv_ultrasoon_current_sensor;
+    TIMSK3 |= (1<<OCIE3B);
  77c:	e1 e7       	ldi	r30, 0x71	; 113
  77e:	f0 e0       	ldi	r31, 0x00	; 0
  780:	80 81       	ld	r24, Z
@@ -1650,6 +1800,7 @@ void init_delay_timer(){
  784:	80 83       	st	Z, r24
 
 00000786 <.Loc.31>:
+}
  786:	ff 91       	pop	r31
  788:	ef 91       	pop	r30
  78a:	8f 91       	pop	r24
@@ -1660,11 +1811,15 @@ void init_delay_timer(){
  794:	18 95       	reti
 
 00000796 <.L4>:
+        agv_ultrasoon_current_sensor = 2;
  796:	82 e0       	ldi	r24, 0x02	; 2
  798:	80 93 28 02 	sts	0x0228, r24	; 0x800228 <agv_ultrasoon_current_sensor>
  79c:	eb cf       	rjmp	.-42     	; 0x774 <.L3>
 
 0000079e <__vector_31>:
+
+ISR(TIMER3_CAPT_vect)
+{
  79e:	1f 92       	push	r1
  7a0:	0f 92       	push	r0
  7a2:	0f b6       	in	r0, 0x3f	; 63
@@ -1694,6 +1849,8 @@ void init_delay_timer(){
  7ce:	de b7       	in	r29, 0x3e	; 62
 
 000007d0 <.Loc.35>:
+    //zet max naar sensorwaarde
+    if(agv_ultrasoon_current_sensor == 0b00000010)
  7d0:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 000007d4 <.Loc.37>:
@@ -1701,6 +1858,10 @@ void init_delay_timer(){
  7d6:	f1 f1       	breq	.+124    	; 0x854 <.L9>
 
 000007d8 <.Loc.38>:
+    {
+        agv_ultrasoon_boom_rechts = (ICR3 - 4454)/4*0.0343;
+    }
+    else if(agv_ultrasoon_current_sensor == 0b00000100)
  7d8:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 000007dc <.Loc.40>:
@@ -1711,6 +1872,10 @@ void init_delay_timer(){
  7e0:	87 c0       	rjmp	.+270    	; 0x8f0 <.L10>
 
 000007e2 <.Loc.41>:
+    {
+        agv_ultrasoon_boom_links = (ICR3 - 4454)/4*0.0343;
+    }
+    else if(agv_ultrasoon_current_sensor == 0b00010000)
  7e2:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 000007e6 <.Loc.43>:
@@ -1721,6 +1886,8 @@ void init_delay_timer(){
  7ea:	67 c0       	rjmp	.+206    	; 0x8ba <.L7>
 
 000007ec <.Loc.44>:
+    {
+        agv_ultrasoon_voor_midden = (ICR3 - 4454)/4*0.0343;
  7ec:	80 91 96 00 	lds	r24, 0x0096	; 0x800096 <__TEXT_REGION_LENGTH__+0x700096>
  7f0:	90 91 97 00 	lds	r25, 0x0097	; 0x800097 <__TEXT_REGION_LENGTH__+0x700097>
 
@@ -1780,6 +1947,7 @@ void init_delay_timer(){
  852:	33 c0       	rjmp	.+102    	; 0x8ba <.L7>
 
 00000854 <.L9>:
+        agv_ultrasoon_boom_rechts = (ICR3 - 4454)/4*0.0343;
  854:	80 91 96 00 	lds	r24, 0x0096	; 0x800096 <__TEXT_REGION_LENGTH__+0x700096>
  858:	90 91 97 00 	lds	r25, 0x0097	; 0x800097 <__TEXT_REGION_LENGTH__+0x700097>
 
@@ -1838,9 +2006,13 @@ void init_delay_timer(){
  8b6:	40 93 38 02 	sts	0x0238, r20	; 0x800238 <agv_ultrasoon_boom_rechts>
 
 000008ba <.L7>:
+    }
+    PCMSK2 = 0;
  8ba:	10 92 6d 00 	sts	0x006D, r1	; 0x80006d <__TEXT_REGION_LENGTH__+0x70006d>
 
 000008be <.Loc.58>:
+
+}
  8be:	0f 90       	pop	r0
  8c0:	0f 90       	pop	r0
  8c2:	0f 90       	pop	r0
@@ -1868,6 +2040,7 @@ void init_delay_timer(){
  8ee:	18 95       	reti
 
 000008f0 <.L10>:
+        agv_ultrasoon_boom_links = (ICR3 - 4454)/4*0.0343;
  8f0:	80 91 96 00 	lds	r24, 0x0096	; 0x800096 <__TEXT_REGION_LENGTH__+0x700096>
  8f4:	90 91 97 00 	lds	r25, 0x0097	; 0x800097 <__TEXT_REGION_LENGTH__+0x700097>
 
@@ -1927,6 +2100,9 @@ void init_delay_timer(){
  956:	b1 cf       	rjmp	.-158    	; 0x8ba <.L7>
 
 00000958 <__vector_11>:
+
+ISR(PCINT2_vect)
+{
  958:	1f 92       	push	r1
  95a:	0f 92       	push	r0
  95c:	0f b6       	in	r0, 0x3f	; 63
@@ -1956,6 +2132,7 @@ void init_delay_timer(){
  988:	de b7       	in	r29, 0x3e	; 62
 
 0000098a <.Loc.66>:
+    if(agv_ultrasoon_current_sensor == 0b00000010)
  98a:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 0000098e <.Loc.68>:
@@ -1966,6 +2143,11 @@ void init_delay_timer(){
  992:	3f c0       	rjmp	.+126    	; 0xa12 <.L15>
 
 00000994 <.Loc.69>:
+    {
+        agv_ultrasoon_boom_rechts = (TCNT3 - 4454)/4*0.0343;
+        PORTA &= ~(0b00000001);
+    }
+    else if(agv_ultrasoon_current_sensor == 0b00000100)
  994:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 00000998 <.Loc.71>:
@@ -1976,6 +2158,11 @@ void init_delay_timer(){
  99c:	8e c0       	rjmp	.+284    	; 0xaba <.L16>
 
 0000099e <.Loc.72>:
+    {
+        agv_ultrasoon_boom_links = (TCNT3 - 4454)/4*0.0343;
+        PORTA &= ~(0b00000010);
+    }
+    else if(agv_ultrasoon_current_sensor == 0b00010000)
  99e:	80 91 28 02 	lds	r24, 0x0228	; 0x800228 <agv_ultrasoon_current_sensor>
 
 000009a2 <.Loc.74>:
@@ -1986,6 +2173,8 @@ void init_delay_timer(){
  9a6:	69 c0       	rjmp	.+210    	; 0xa7a <.L13>
 
 000009a8 <.Loc.75>:
+    {
+        agv_ultrasoon_voor_midden = (TCNT3 - 4454)/4*0.0343;
  9a8:	80 91 94 00 	lds	r24, 0x0094	; 0x800094 <__TEXT_REGION_LENGTH__+0x700094>
  9ac:	90 91 95 00 	lds	r25, 0x0095	; 0x800095 <__TEXT_REGION_LENGTH__+0x700095>
 
@@ -2044,10 +2233,12 @@ void init_delay_timer(){
  a0a:	40 93 36 02 	sts	0x0236, r20	; 0x800236 <agv_ultrasoon_voor_midden>
 
 00000a0e <.Loc.81>:
+        PORTA &= ~(0b00001000);
  a0e:	13 98       	cbi	0x02, 3	; 2
  a10:	34 c0       	rjmp	.+104    	; 0xa7a <.L13>
 
 00000a12 <.L15>:
+        agv_ultrasoon_boom_rechts = (TCNT3 - 4454)/4*0.0343;
  a12:	80 91 94 00 	lds	r24, 0x0094	; 0x800094 <__TEXT_REGION_LENGTH__+0x700094>
  a16:	90 91 95 00 	lds	r25, 0x0095	; 0x800095 <__TEXT_REGION_LENGTH__+0x700095>
 
@@ -2106,9 +2297,13 @@ void init_delay_timer(){
  a74:	40 93 38 02 	sts	0x0238, r20	; 0x800238 <agv_ultrasoon_boom_rechts>
 
 00000a78 <.Loc.89>:
+        PORTA &= ~(0b00000001);
  a78:	10 98       	cbi	0x02, 0	; 2
 
 00000a7a <.L13>:
+    }
+    //check welke sensor en schrijf timer3 waarde naar sensorwaarde
+    TIMSK3 &= ~(1<<ICIE3);
  a7a:	e1 e7       	ldi	r30, 0x71	; 113
  a7c:	f0 e0       	ldi	r31, 0x00	; 0
  a7e:	80 81       	ld	r24, Z
@@ -2116,9 +2311,12 @@ void init_delay_timer(){
  a82:	80 83       	st	Z, r24
 
 00000a84 <.Loc.93>:
+    //zet timer3 overflow flag uit
+    PCMSK2 = 0;
  a84:	10 92 6d 00 	sts	0x006D, r1	; 0x80006d <__TEXT_REGION_LENGTH__+0x70006d>
 
 00000a88 <.Loc.95>:
+}
  a88:	0f 90       	pop	r0
  a8a:	0f 90       	pop	r0
  a8c:	0f 90       	pop	r0
@@ -2146,6 +2344,7 @@ void init_delay_timer(){
  ab8:	18 95       	reti
 
 00000aba <.L16>:
+        agv_ultrasoon_boom_links = (TCNT3 - 4454)/4*0.0343;
  aba:	80 91 94 00 	lds	r24, 0x0094	; 0x800094 <__TEXT_REGION_LENGTH__+0x700094>
  abe:	90 91 95 00 	lds	r25, 0x0095	; 0x800095 <__TEXT_REGION_LENGTH__+0x700095>
 
@@ -2204,6 +2403,7 @@ void init_delay_timer(){
  b1c:	40 93 3a 02 	sts	0x023A, r20	; 0x80023a <agv_ultrasoon_boom_links>
 
 00000b20 <.Loc.102>:
+        PORTA &= ~(0b00000010);
  b20:	11 98       	cbi	0x02, 1	; 2
  b22:	ab cf       	rjmp	.-170    	; 0xa7a <.L13>
 
