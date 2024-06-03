@@ -9,6 +9,7 @@
 #include <util/delay.h>
 #include "SteppermotorAVRDriver.h"
 #include "Ultrasone_sensor.h"
+#include "AGV_Leds.h"
 
 #define distanceToCheck 50
 #define distanceToFollow 12
@@ -33,16 +34,6 @@
 #define IRSensorLeft PA2 //pin 24
 #define IRSensorRight PA3 //pin 25
 
-//LEDS
-#define TreeIndicatedLEDLeft PL0 //pin 49
-#define TreeIndicatedLEDRight PL1 //pin 48
-#define TurnSignalLEDLeft PL2 //pin 47
-#define TurnSignalLEDRight PL3 //pin 46
-#define Breaklights PL4 //pin 45
-#define Headlights PL5 //pin 44
-#define NoodstopLEDFront PL6 //pin 43
-#define NoodstopLEDBack PL7 //pin 42
-
 //Buttons
 #define StartButtonPin PC0 //pin 37
 #define FollowModeSwitch PC1 //pin 36
@@ -56,7 +47,6 @@ int checkNoodstop();
 int isStartButtonPressed();
 int checkModeSwitchState();
 void initIRSensors();
-void initLEDS();
 void initButtons();
 int checkFrontIRState();
 void followHand();
@@ -67,10 +57,10 @@ int checkSensors();
 
 //Inits
 void initAGV(){
+    init_Leds();
     agv_ultrasoon_init();
     initSteppermotorAVRDriver();
     initIRSensors();
-    initLEDS();
     initButtons();
 }
 
@@ -188,7 +178,7 @@ int main(void)
     return 0;
 }
 
-//Check of één van de twee noodstops is ingedrukt
+//Check of ×™×™n van de twee noodstops is ingedrukt
 int checkNoodstop(){
     if(bit_is_clear(PINC, NoodstopPinBack) || bit_is_clear(PINC, NoodstopPinFront)){
         return 1;
@@ -225,14 +215,6 @@ void initButtons(){
     for(int i = 0; i < 5; i++){
         DDRC &= ~(1<<i);
         PORTC |= (1<<i);
-    }
-}
-
-//Init leds
-void initLEDS(){
-    //Loop voor alle leds
-    for(int i = 0; i < 8; i++){
-        PORTL |= (1<<i);
     }
 }
 
