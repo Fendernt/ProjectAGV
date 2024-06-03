@@ -345,17 +345,3 @@ void followHand(int distance){
 
 }
 
-void init_delay_timer(){
-    // Use mode 0, clkdiv = 64
-    TCCR2A = 0;
-    TCCR2B = (0<<CS22) | (1<<CS21) | (1<<CS20);
-
-    // Disable PWM output
-    OCR2A = 0;
-    OCR2B = 0;
-
-    //Overflow interrupt
-    TIMSK2 = (1<<TOIE2);
-    TCNT2 = 6;
-}
-
