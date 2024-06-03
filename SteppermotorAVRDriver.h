@@ -3,11 +3,11 @@
 
 #define MotorLeftPort PORTF
 #define MotorLeftDDR DDRF
-#define MotorLeftStartpin PF0
+#define MotorLeftStartpin PF0 //A0
 
 #define MotorRightPort PORTF
 #define MotorRightDDR DDRF
-#define MotorRightStartpin PF4
+#define MotorRightStartpin PF4 //A4
 
 
 //Enum's for names, numbers are made up.
