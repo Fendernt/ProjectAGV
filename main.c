@@ -9,6 +9,7 @@
 #include <util/delay.h>
 #include "SteppermotorAVRDriver.h"
 #include "Ultrasone_sensor.h"
+#include "AGVBochten.h"
 
 #define distanceToCheck 50
 #define distanceToFollow 12
@@ -28,6 +29,7 @@
 
 //{ Pins
 //IR
+#define IRPIN PINA
 #define FrontIRSensorLeftPin PA0 //pin 22
 #define FrontIRSensorRightPin PA1 //pin 23
 #define IRSensorLeft PA2 //pin 24
@@ -47,9 +49,13 @@
 #define StartButtonPin PC0 //pin 37
 #define FollowModeSwitch PC1 //pin 36
 #define DriveModeSwitch PC2 //pin 35
-#define NoodstopPinFront PC3 //pin 34
-#define NoodstopPinBack PC4 //pin 33
+#define NoodstopPin PC3 //pin 34
 //}
+
+
+//Define voor als we wel of niet correctie willen gebruiken tijdens
+//het rijden van de AGV
+//#define UseDrivingCorrection
 
 //{ Function list
 int checkNoodstop();
@@ -72,14 +78,17 @@ void initAGV(){
     initIRSensors();
     initLEDS();
     initButtons();
+    initAGVBochten();
 }
 
 int main(void)
 {
     //Variables
-    int mode = BoomgaardRijden; //Active mode van de AGV
+    int mode = ModeOff; //Active mode van de AGV
     int FrontDistance; //Var voor de afstand vam objecten voor de AGV
     initAGV(); //Init
+
+    setBothStepperMode(ForwardStep);
 
     while(1){
 
@@ -154,6 +163,12 @@ int main(void)
 
             //Case voor door de boomgaard rijden
             case BoomgaardRijden:
+                #ifdef UseDrivingCorrection
+                if(!bit_is_clear(IRPIN, IRSensorLeft) && !bit_is_clear(IRPIN, IRSensorRight)){
+                    //We zijn nog in de boomgaard aan het rijden dus wacht totdat we erin zitten.
+                    break;
+                }
+                #endif
 
                 int WorldState = checkSensors();
                 switch(WorldState){
@@ -169,7 +184,24 @@ int main(void)
                         _delay_ms(1000);
                         break;
                     case 3: //Nothing, keep driving
+                        #ifdef UseDrivingCorrection
+                        int correction = needCorrection();
+                        switch(correction){
+                            case 0: //Geen afwijking
+                                setBothStepperMode(ForwardStep);
+                                break;
+                            case 1: //Afwijking naar Rechts
+                                setStepperMode(leftMotor, BackwardStep);
+                                setStepperMode(rightMotor, Off);
+                                break;
+                            case 2: //Afwijking naar Links
+                                setStepperMode(rightMotor, BackwardStep);
+                                setStepperMode(leftMotor, Off);
+                                break;
+                        }
+                        #else
                         setBothStepperMode(ForwardStep);
+                        #endif
                         break;
                 }
 
@@ -177,8 +209,12 @@ int main(void)
 
             //Case voor bochten maken
             case BoomgaardBocht:
-                setStepperMode(leftMotor, ForwardStep);
-                setStepperMode(rightMotor, BackwardStep);
+                static int direction = 0;
+
+                if(startTurn(direction)){
+                    direction = !direction;
+                };
+
                 break;
         }
 
@@ -188,9 +224,30 @@ int main(void)
     return 0;
 }
 
+/*
+    Functie om te kijken of we van het pad aan het afdwalen zijn.
+    return codes:
+    0-Geen afwijking
+    1-Afwijking naar Rechts
+    2-Afwijking naar links
+*/
+int needCorrection(){
+    int returnValue = 0;
+    //Linker bit is niet geactiveerd, we hebben een afwijking naar Rechts
+    if(!bit_is_clear(PINA, IRSensorLeft)){
+        returnValue = 1;
+    }
+    //Rechter bit is niet geactiveerd, we hebben een afwijking naar Links
+    if(!bit_is_clear(PINA, IRSensorRight)){
+        returnValue = 2;
+    }
+
+    return returnValue;
+}
+
 //Check of één van de twee noodstops is ingedrukt
 int checkNoodstop(){
-    if(bit_is_clear(PINC, NoodstopPinBack) || bit_is_clear(PINC, NoodstopPinFront)){
+    if(bit_is_clear(PINC, NoodstopPin)){
         return 1;
     }
     return 0;
@@ -363,17 +420,4 @@ void followHand(int distance){
 
 }
 
-void init_delay_timer(){
-    // Use mode 0, clkdiv = 64
-    TCCR2A = 0;
-    TCCR2B = (0<<CS22) | (1<<CS21) | (1<<CS20);
-
-    // Disable PWM output
-    OCR2A = 0;
-    OCR2B = 0;
-
-    //Overflow interrupt
-    TIMSK2 = (1<<TOIE2);
-    TCNT2 = 6;
-}
 

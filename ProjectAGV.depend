@@ -8,15 +8,16 @@
 	<avr/delay.h>
 	"SteppermotorAVRDriver.h"
 
-1716983684 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.h
+1717410455 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.h
 
-1717161358 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\main.c
+1717423536 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\main.c
 	<avr/io.h>
 	<util/delay.h>
 	"SteppermotorAVRDriver.h"
 	"Ultrasone_sensor.h"
+	"AGVBochten.h"
 
-1717163552 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.h
+1717423600 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.h
 
 1717067708 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.c
 	<avr/interrupt.h>
@@ -36,4 +37,13 @@
 1717080879 source:c:\users\roy\documents\.code\.school\github clones\jaar 1\projectagv\ultrasone_sensor.c
 	<avr/interrupt.h>
 	<avr/io.h>
+
+1717410432 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agvbochten.h
+
+1717420723 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\avgbochten.c
+	<avr/io.h>
+	<util/delay.h>
+	<avr/interrupt.h>
+	"AGVBochten.h"
+	"SteppermotorAVRDriver.h"
 

@@ -1,5 +1,10 @@
 //Stepper motor driver header file
 
+#ifndef SteppermotorAVRDriver
+#define SteppermotorAVRDriver
+
+
+
 
 #define MotorLeftPort PORTF
 #define MotorLeftDDR DDRF
@@ -29,3 +34,7 @@ void initSteppermotorAVRDriver();
 void SetStepperSpeed(int speed);
 
 void SetSteppermotorSpeed(int motor, int speed);
+
+
+#endif
+
