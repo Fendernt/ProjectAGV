@@ -46,7 +46,6 @@ int checkNoodstop();
 int isStartButtonPressed();
 int checkModeSwitchState();
 void initIRSensors();
-void initLEDS();
 void initButtons();
 int checkFrontIRState();
 void followHand();
@@ -61,7 +60,6 @@ void initAGV(){
     agv_ultrasoon_init();
     initSteppermotorAVRDriver();
     initIRSensors();
-    initLEDS();
     initButtons();
 }
 
