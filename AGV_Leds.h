@@ -1,5 +1,9 @@
+#ifndef AFV_LED_H_INCLUDED
+#define AFV_LED_H_INCLUDED
+
 #define TreeIndicatedLEDLeft PB2 //pin 51
 #define TreeIndicatedLEDRight PB3 //pin 50
+
 #define TurnSignalLEDLeft PL0 //pin 49
 #define TurnSignalLEDRight PL1 //pin 48
 #define BreaklightsLeft PL2 //pin 47
@@ -11,12 +15,6 @@
 
 void init_Leds(void);
 
-void LedTreeIndictorLeft(int x);
-void LedTreeIndictorLeft(int x);
-
-void LedTurnSignalLeft(int x);
-void LedTurnSignalRight(int x);
-
 void LedBreakLightLeft(int x);
 void LedBreakLightRight(int x);
 
@@ -25,3 +23,10 @@ void LedHeadlightRight(int x);
 
 void LedNoodstopFront(int x);
 void LedNoodstopBack(int x);
+
+extern volatile int TurnSignalLeft;
+extern volatile int TurnSignalRight;
+extern volatile int TreeSignalLeft;
+extern volatile int TreeSignalRight;
+
+#endif
