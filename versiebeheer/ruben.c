@@ -51,26 +51,26 @@ int main(void) {
             int place;
             switch (digit) {
             case 0:
-                pattern = disp_1;
+                pattern = disp_A;
                 place = 1; //Links
                 break;
             case 1:
-                pattern = disp_2;
+                pattern = disp_B;
                 place = 2; //Midden-links
                 break;
             case 2:
-                pattern = disp_3;
+                pattern = disp_C;
                 place = 4; //Midden-rechts
                 break;
             case 3:
-                pattern = disp_4;
+                pattern = disp_D;
                 place = 8; //Rechts
                 break;
             default:
                 pattern = disp_clear;
             }
             display(pattern, place);
-            //_delay_ms(100);
+            _delay_ms(100);
         }
     }
 }
