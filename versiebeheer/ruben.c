@@ -70,7 +70,7 @@ int main(void) {
                 pattern = disp_clear;
             }
             display(pattern, place);
-            _delay_ms(100);
+            //_delay_ms(100);
         }
     }
 }
