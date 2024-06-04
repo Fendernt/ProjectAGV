@@ -7,6 +7,7 @@
 void init_Leds(void){
     PORTL = 0xff;
     PORTB |= (1 << PB2) | (1 << PB3);
+    init_delay_led();
 }
 
 void LedTreeIndictorLeftToggle(){
@@ -40,6 +41,11 @@ void LedBreakLightRight(int x){
     }
 }
 
+void setBreaklights(int x){
+    LedBreakLightLeft(x);
+    LedBreakLightRight(x);
+}
+
 void LedHeadlightLeft(int x){
     if(x){
         PORTL |= (1 << HeadlightsLeft);
@@ -55,6 +61,11 @@ void LedHeadlightRight(int x){
     else{
         PORTL &= ~(1 << HeadlightsRight);
     }
+}
+
+void setHeadlights(int x){
+    LedHeadlightLeft(x);
+    LedHeadlightRight(x);
 }
 
 void LedNoodstopFront(int x){
@@ -73,6 +84,7 @@ void LedNoodstopBack(int x){
         PORTL &= ~(1 << NoodstopLEDBack);
     }
 }
+
 
 volatile int TurnSignalLeft = 0;
 volatile int TurnSignalRight = 0;

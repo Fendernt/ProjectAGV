@@ -80,6 +80,9 @@ int main(void)
 
     setBothStepperMode(ForwardStep);
 
+    //Zet koplampen aan
+    setHeadlights(1);
+
     while(1){
 
         //Check voor de noodstop.
@@ -136,17 +139,23 @@ int main(void)
                 switch(IRState){
                     case 0: // Allebij de sensors aan dus zet motors uit
                         setBothStepperMode(Off);
+                        TurnSignalLeft = 1;
+                        TurnSignalRight = 1;
                         break;
                     case 1: //Linker IR Sensor activated
+                        TurnSignalLeft = 1;
                         setStepperMode(rightMotor, BackwardStep);
                         setStepperMode(leftMotor, Off);
                         break;
                     case 2: //Rechter IR Sensor activated
+                        TurnSignalRight = 1;
                         setStepperMode(leftMotor, BackwardStep);
                         setStepperMode(rightMotor, Off);
                         break;
                     case 3: //Geen IR sensor activated
                         followHand(filterDistance(FrontDistance));
+                        TurnSignalLeft = 0;
+                        TurnSignalRight = 0;
                         break;
                 }
                 break;
@@ -164,14 +173,21 @@ int main(void)
                 switch(WorldState){
                     case 0: //Object in front of AGV
                         setBothStepperMode(Off);
+                        setBreaklights(1);
                         break;
                     case 1: //Tree left
                         setBothStepperMode(Off);
+                        TreeSignalLeft = 1;
+                        setBreaklights(1);
                         _delay_ms(1000);
+                        TreeSignalLeft = 0;
                         break;
                     case 2: //Tree right
                         setBothStepperMode(Off);
+                        TreeSignalRight = 1;
+                        setBreaklights(1);
                         _delay_ms(1000);
+                        TreeSignalRight = 0;
                         break;
                     case 3: //Nothing, keep driving
                         #ifdef UseDrivingCorrection
@@ -191,6 +207,7 @@ int main(void)
                         }
                         #else
                         setBothStepperMode(ForwardStep);
+                        setBreaklights(0);
                         #endif
                         break;
                 }
