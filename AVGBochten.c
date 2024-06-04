@@ -32,7 +32,7 @@
 #define Right 1
 
 //Counter
-volatile int counter = 0;
+volatile int AVGBochtenCounter = 0;
 
 
 int turnStarted = 0; //Check voor als we in een bocht zitten
@@ -61,7 +61,7 @@ int startTurn(int direction){
 
 //Set timer aan
 void startTimer(){
-    counter = 0;
+    AVGBochtenCounter = 0;
     TCNT4 = 0;
     TCCR4B = (0<<CS42) | (1<<CS41) | (0<<CS40);
 }
@@ -98,19 +98,19 @@ void init_AGVBochten_timer(){
 }
 
 ISR(TIMER4_OVF_vect){
-    counter++;
+    AVGBochtenCounter++;
 
     //Begin bocht
-    if(counter == Comp_StartTurn){
+    if(AVGBochtenCounter == Comp_StartTurn){
         if(turnsTaken == 2) { //Als we al 2 bochten hebben gemaakt stop de timer
             stopTimer();
         } else turn(turnDirection); //Zoniet, maak de bocht
     }
 
     //Stop de bocht
-    if(counter == Comp_EndTurn){
+    if(AVGBochtenCounter == Comp_EndTurn){
         setBothStepperMode(ForwardStep);
-        if(turnsTaken == 0) counter = DrivingHeadstart; //Als dit het einde is van de eerste bocht, reset de timer om het te herhalen
+        if(turnsTaken == 0) AVGBochtenCounter = DrivingHeadstart; //Als dit het einde is van de eerste bocht, reset de timer om het te herhalen
         turnsTaken++; //increase aantal bochten
     }
 }

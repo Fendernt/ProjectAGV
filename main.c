@@ -235,8 +235,7 @@ int needCorrection(){
     return returnValue;
 }
 
-//Check of ��n van de twee noodstops is ingedrukt
-//Check of ייn van de twee noodstops is ingedrukt
+//Check of noodstop is ingedrukt
 int checkNoodstop(){
     if(bit_is_clear(PINC, NoodstopPin)){
         return 1;

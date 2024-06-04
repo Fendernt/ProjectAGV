@@ -47,3 +47,11 @@
 	"AGVBochten.h"
 	"SteppermotorAVRDriver.h"
 
+1717488612 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agv_leds.c
+	<avr/io.h>
+	<util/delay.h>
+	<avr/interrupt.h>
+	"AGV_Leds.h"
+
+1717488612 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agv_leds.h
+
