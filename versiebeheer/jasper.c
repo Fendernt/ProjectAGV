@@ -24,7 +24,7 @@ int main(void)
                 PORTB &= ~(1 << MAGNET);
             }
         } else {
-            MAGNET_PRESSED = 0;
+            MAGNET_PRESSED = 2;
         }
    }
 
