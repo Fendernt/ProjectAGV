@@ -22,12 +22,6 @@
     halve draai gemaakt
 */
 
-//1 sec = 30
-#define second 30
-#define Comp_StartTurn (second*3)
-#define Comp_EndTurn (Comp_StartTurn + (second * 3.9))
-#define DrivingHeadstart -50
-
 #define Left 0
 #define Right 1
 
@@ -53,7 +47,7 @@ int startTurn(int direction){
         return checkIfFinished();
     }
 
-
+    setBothStepperMode(ForwardStep);
     turnStarted = 1;
     turnDirection = direction;
     startTimer(); //Start de bocht
