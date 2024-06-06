@@ -4,7 +4,7 @@
 
 ISR(TIMER0_OVF_vect)
 {
-    PORTB &= ~(1<<PB7);
+    PORTB &= ~(1<<PB6);
     int x = 1;
 
     if(x == 1)
@@ -34,8 +34,8 @@ ISR(TIMER0_COMPA_vect)
 
 void init_led(void)
 {
-    DDRB |= (1<<PB7);
-    PORTB &= ~(1<<PB7);
+    DDRB |= (1<<PB6);
+    PORTB &= ~(1<<PB6);
 }
 
 void init_timer(void)
