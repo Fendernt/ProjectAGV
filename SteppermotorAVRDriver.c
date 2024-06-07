@@ -99,8 +99,10 @@ void init_timer(){
 
 void initSteppermotorAVRDriver(){
     initMotorpins();
-    setStepperMode(leftMotor, ForwardStep);
     init_timer();
+    setBothStepperMode(Off);
+
+
 }
 
 

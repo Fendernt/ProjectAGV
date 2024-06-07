@@ -9,12 +9,17 @@
 #include <util/delay.h>
 #include "SteppermotorAVRDriver.h"
 #include "Ultrasone_sensor.h"
+#include "AGVBochten.h"
 #include "AGV_Leds.h"
 
-#define distanceToCheck 50
-#define distanceToFollow 12
-#define dAccuracy 2
-#define TreeDistance 10
+#define distanceToCheck 40
+#define distanceToFollow 10
+#define dAccuracy 3
+#define TreeDistance 3
+
+#define CheckinFrontOfAVRWhileDriving 20
+
+#define TimeToWaitBetweenTrees 1200
 
 
 #define minDistance (distanceToFollow - dAccuracy)
@@ -29,6 +34,7 @@
 
 //{ Pins
 //IR
+#define IRPIN PINA
 #define FrontIRSensorLeftPin PA0 //pin 22
 #define FrontIRSensorRightPin PA1 //pin 23
 #define IRSensorLeft PA2 //pin 24
@@ -36,11 +42,22 @@
 
 //Buttons
 #define StartButtonPin PC0 //pin 37
-#define FollowModeSwitch PC1 //pin 36
-#define DriveModeSwitch PC2 //pin 35
-#define NoodstopPinFront PC3 //pin 34
-#define NoodstopPinBack PC4 //pin 33
+#define FollowModeSwitch PC2 //pin 35
+#define DriveModeSwitch PC1 //pin 36
+#define NoodstopPin PC3 //pin 34
 //}
+
+
+/*
+    Defines voor het bepalen wat wel en niet word gedaan
+    tijdens het rijden in een pad
+*/
+#define UseDrivingCorrection //Gebruik padcorrectie tijdens het rijden van het pad
+#define UseUltrasone //Gebruik de ultrasone tijdens het rijden in het pad
+#define UltrasoneDoublechecking //Maak meerdere scans van de ultrasone voor het bepalen van een object
+#define MaakBochtNaPad //Maak de bocht na het einde van het pad
+int doorEerstePadGereden = 0;
+int var_inEenPad = 0;
 
 //{ Function list
 int checkNoodstop();
@@ -62,14 +79,18 @@ void initAGV(){
     initSteppermotorAVRDriver();
     initIRSensors();
     initButtons();
+    initAGVBochten();
 }
 
 int main(void)
 {
     //Variables
-    int mode = BoomgaardRijden; //Active mode van de AGV
+    int mode = ModeOff; //Active mode van de AGV
     int FrontDistance; //Var voor de afstand vam objecten voor de AGV
     initAGV(); //Init
+
+    //Zet koplampen aan
+    setHeadlights(1);
 
     while(1){
 
@@ -79,9 +100,11 @@ int main(void)
         }
 
         //Check voor de uit knop (in dit geval telt de start knop ook als stop knop als de AVG ergens mee bezig is)
+        /*
         if(mode != Noodstop && mode != ModeOff && isStartButtonPressed()){
             mode = ModeOff;
         }
+        */
 
         switch(mode){
 
@@ -89,15 +112,26 @@ int main(void)
             case ModeOff:
                 setBothStepperMode(Off);
 
+                LedNoodstopBack(0);
+                LedNoodstopFront(0);
+
+                TurnSignalLeft = 0;
+                TurnSignalRight = 0;
+                TreeSignalLeft = 0;
+                TreeSignalRight = 0;
+                setBreaklights(0);
+
                 //Als de startbutton is ingedrukt, kijk in welke mode de modeswitch is, en activeer die mode.
                 if(isStartButtonPressed()){
                     int switchState = checkModeSwitchState();
                     switch(switchState){
                     case 1: //Volg mode
                         mode = Following;
+                        _delay_ms(10); //debounce
                         break;
                     case 2: //Rij mode
                         mode = BoomgaardRijden;
+                        _delay_ms(10); //debounce
                         break;
                     case 0: //Switch staat in het midden
                         //do nothin lol
@@ -110,7 +144,13 @@ int main(void)
             //Case voor noodstop
             case Noodstop:
                 setBothStepperMode(Off);
-
+                LedNoodstopBack(1);
+                LedNoodstopFront(1);
+                TurnSignalLeft = 1;
+                TurnSignalRight = 1;
+                TreeSignalLeft = 1;
+                TreeSignalRight = 1;
+                setBreaklights(1);
                 //Noodstop niet meer ingedrukt, ga naar de start modus.
                 //Start mode zodat opnieuw de startknop moet worden ingedrukt.
                 if(!checkNoodstop()) {
@@ -127,39 +167,96 @@ int main(void)
                 switch(IRState){
                     case 0: // Allebij de sensors aan dus zet motors uit
                         setBothStepperMode(Off);
+                        TurnSignalLeft = 1;
+                        TurnSignalRight = 1;
                         break;
                     case 1: //Linker IR Sensor activated
+                        TurnSignalLeft = 1;
+                        TurnSignalRight = 0;
                         setStepperMode(rightMotor, BackwardStep);
                         setStepperMode(leftMotor, Off);
                         break;
                     case 2: //Rechter IR Sensor activated
+                        TurnSignalRight = 1;
+                        TurnSignalLeft = 0;
                         setStepperMode(leftMotor, BackwardStep);
                         setStepperMode(rightMotor, Off);
                         break;
                     case 3: //Geen IR sensor activated
                         followHand(filterDistance(FrontDistance));
+                        TurnSignalLeft = 0;
+                        TurnSignalRight = 0;
                         break;
                 }
                 break;
 
             //Case voor door de boomgaard rijden
             case BoomgaardRijden:
-
                 int WorldState = checkSensors();
+                static int alBochtGemaakt = 0;
+
+                #ifdef MaakBochtNaPad
+                if(nietInEenPad() && !alBochtGemaakt){
+                    _delay_ms(50);
+                    if(nietInEenPad() && !alBochtGemaakt){
+                        alBochtGemaakt = 1;
+                        mode = BoomgaardBocht;
+                    }
+                } else if(nietInEenPad()){
+                    _delay_ms(50);
+                    if(nietInEenPad()){
+                        mode = ModeOff;
+                    }
+                }
+                #endif // MaakBochtNaPad
+
                 switch(WorldState){
                     case 0: //Object in front of AGV
                         setBothStepperMode(Off);
+                        setBreaklights(1);
                         break;
                     case 1: //Tree left
                         setBothStepperMode(Off);
-                        _delay_ms(1000);
+                        TreeSignalLeft = 1;
+                        setBreaklights(1);
+                        _delay_ms(TimeToWaitBetweenTrees);
+                        TreeSignalLeft = 0;
                         break;
                     case 2: //Tree right
                         setBothStepperMode(Off);
-                        _delay_ms(1000);
+                        TreeSignalRight = 1;
+                        setBreaklights(1);
+                        _delay_ms(TimeToWaitBetweenTrees);
+                        TreeSignalRight = 0;
                         break;
                     case 3: //Nothing, keep driving
+                        #ifdef UseDrivingCorrection
+                        int correction = needCorrection();
+                        setBreaklights(0);
+                        switch(correction){
+                            case 0: //Geen afwijking
+                                setBothStepperMode(ForwardStep);
+                                break;
+                            case 1: //Afwijking naar Rechts
+                                setStepperMode(rightMotor, Off);
+                                setStepperMode(leftMotor, ForwardStep);
+                                break;
+                            case 2: //Afwijking naar Links
+                                setStepperMode(leftMotor, Off);
+                                setStepperMode(rightMotor, ForwardStep);
+                                break;
+                            case 3: //Allebij uit
+                                TreeSignalLeft = 1;
+                                TreeSignalRight = 1;
+                                TurnSignalLeft = 1;
+                                TurnSignalRight = 1;
+                                setBothStepperMode(Off);
+                                break;
+                        }
+                        #else
                         setBothStepperMode(ForwardStep);
+                        setBreaklights(0);
+                        #endif
                         break;
                 }
 
@@ -167,8 +264,20 @@ int main(void)
 
             //Case voor bochten maken
             case BoomgaardBocht:
-                setStepperMode(leftMotor, ForwardStep);
-                setStepperMode(rightMotor, BackwardStep);
+                static int bochtGemaakt = 0;
+                static int direction = 0;
+
+                if(startTurn(direction) && (bochtGemaakt == 0)){
+                    bochtGemaakt = 1;
+                }
+
+                if(bochtGemaakt){
+                    if(bit_is_clear(IRPIN, IRSensorLeft) || bit_is_clear(IRPIN, IRSensorRight)){
+                        bochtGemaakt = 0;
+                        mode = BoomgaardRijden;
+                    }
+                }
+
                 break;
         }
 
@@ -178,9 +287,39 @@ int main(void)
     return 0;
 }
 
-//Check of ייn van de twee noodstops is ingedrukt
+int nietInEenPad(){
+    return ((!bit_is_clear(IRPIN, IRSensorLeft)) && !bit_is_clear(IRPIN, IRSensorRight));
+}
+
+/*
+    Functie om te kijken of we van het pad aan het afdwalen zijn.
+    return codes:
+    0-Geen afwijking
+    1-Afwijking naar Rechts
+    2-Afwijking naar links
+    3-Allebij uit? wtf? help? pls wtf help??!!?!??!?!!?
+*/
+
+#define testDelay 0
+int needCorrection(){
+
+    //Linker bit is niet geactiveerd, we hebben een afwijking naar Rechts //Bijsturen naar links
+    if(!bit_is_clear(IRPIN, IRSensorLeft)){
+        _delay_ms(testDelay);
+        return 1;
+    }
+    //Rechter bit is niet geactiveerd, we hebben een afwijking naar Links //bijsturen naar rechts
+    if(!bit_is_clear(IRPIN, IRSensorRight)){
+        _delay_ms(testDelay);
+        return 2;
+    }
+
+    return 0;
+}
+
+//Check of noodstop is ingedrukt
 int checkNoodstop(){
-    if(bit_is_clear(PINC, NoodstopPinBack) || bit_is_clear(PINC, NoodstopPinFront)){
+    if(bit_is_clear(PINC, NoodstopPin)){
         return 1;
     }
     return 0;
@@ -235,6 +374,8 @@ void initIRSensors(){
     3- Geen
 */
 int checkFrontIRState(){
+    //return 3; //for testing without IR sensors
+
     //Allebij detecteren iets, return 0
     if(bit_is_clear(PINA, FrontIRSensorLeftPin) && bit_is_clear(PINA, FrontIRSensorRightPin)){
         return 0;
@@ -251,7 +392,7 @@ int checkFrontIRState(){
     }
 
     //Return 3
-    return 3;
+    return 3; //Geen IR sensor's geactiveerd
 }
 
 
@@ -263,32 +404,70 @@ int checkFrontIRState(){
     2-Er is een boom rechts van de AGV
     3-Er is niks gemeten
 */
+
+#define doubleCheckTimeDelay 400
 int checkSensors(){
     //Variable om te kijken of er al iets is gemeten
     static int leftPreviousState = 0;
     static int rightPreviousState = 0;
+    static int doubleCheckLeft = 0;
+    static int doubleCheckRight = 0;
+
+    #ifndef UseUltrasone
+    return 3;
+    #endif // UseUltrasone
 
     //Kijken of er iets voor de AGV staat.
-    if(maxDistance > filterDistance(agv_ultrasoon_voor_midden)){
+    if(CheckinFrontOfAVRWhileDriving > filterDistance(agv_ultrasoon_voor_midden)){
         return 0;
     }
 
     //Kijken of er iets voor de AGV staat, en er nog niks is gemeten
     if((TreeDistance > filterDistance(agv_ultrasoon_boom_links)) && !leftPreviousState){
         //Variable zetten om te onthouden dat deze al is gemeten.
+        #ifdef UltrasoneDoublechecking
+        if(!doubleCheckLeft){
+            doubleCheckLeft = 1;
+            _delay_ms(doubleCheckTimeDelay);
+            return 3;
+        } else {
+            doubleCheckLeft = 0;
+            leftPreviousState = 1;
+            return 1;
+        }
+        #else
         leftPreviousState = 1;
         return 1;
+        #endif // UltrasoneDoublechecking
+
     } else if(leftPreviousState && (TreeDistance < filterDistance(agv_ultrasoon_boom_links)) ){
         //Er word geen boom meer gemeten dus we zijn er voorbij gereden, variable weer uitzetten om de te zoeken naar de volgende boom.
+        //_delay_ms(100);
         leftPreviousState = 0;
+        doubleCheckLeft = 0;
     }
 
     //Werkt hetzelfde als hierboven maar dan voor de rechterkant van de AGV
-    if((TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)) && !rightPreviousState){
+    if((TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)) && !rightPreviousState ){
+        #ifdef UltrasoneDoublechecking
+        if(!doubleCheckRight){
+            doubleCheckRight = 1;
+            _delay_ms(doubleCheckTimeDelay);
+            return 3;
+        } else {
+            doubleCheckRight = 0;
+            rightPreviousState = 1;
+            return 2;
+        }
+        #else
         rightPreviousState = 1;
         return 2;
+        #endif // UltrasoneDoublechecking
+
     } else if(rightPreviousState && (TreeDistance < filterDistance(agv_ultrasoon_boom_rechts)) ){
+        //_delay_ms(100);
         rightPreviousState = 0;
+        doubleCheckRight = 0;
     }
 
     //Er is niks gemeten
@@ -323,25 +502,30 @@ void followHand(int distance){
     //Check voor als er iets TE ver weg staat en te negeren.
     if(distance > distanceToCheck){
         setBothStepperMode(Off);
+        setBreaklights(0);
         return;
     }
 
     //Check voor juiste afstand met speelruimte
     if((distance < maxDistance) && (distance > minDistance)){
             setBothStepperMode(Off);
+            setBreaklights(0);
             return;
     }
 
     //Check voor dichtbij
     if(distance < minDistance){
         setBothStepperMode(BackwardStep);
+        setBreaklights(1);
         return;
     }
 
     //check voor verweg
     if(distance > maxDistance){
         setBothStepperMode(ForwardStep);
+        setBreaklights(0);
     }
 
 }
+
 

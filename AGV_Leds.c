@@ -5,8 +5,9 @@
 #include "AGV_Leds.h"
 
 void init_Leds(void){
-    PORTL = 0xff;
-    PORTB |= (1 << PB2) | (1 << PB3);
+    DDRL = 0xff;
+    DDRB |= (1 << PB2) | (1 << PB3);
+    init_delay_led();
 }
 
 void LedTreeIndictorLeftToggle(){
@@ -40,6 +41,11 @@ void LedBreakLightRight(int x){
     }
 }
 
+void setBreaklights(int x){
+    LedBreakLightLeft(x);
+    LedBreakLightRight(x);
+}
+
 void LedHeadlightLeft(int x){
     if(x){
         PORTL |= (1 << HeadlightsLeft);
@@ -55,6 +61,11 @@ void LedHeadlightRight(int x){
     else{
         PORTL &= ~(1 << HeadlightsRight);
     }
+}
+
+void setHeadlights(int x){
+    LedHeadlightLeft(x);
+    LedHeadlightRight(x);
 }
 
 void LedNoodstopFront(int x){
@@ -74,6 +85,7 @@ void LedNoodstopBack(int x){
     }
 }
 
+
 volatile int TurnSignalLeft = 0;
 volatile int TurnSignalRight = 0;
 volatile int TreeSignalLeft = 0;
@@ -84,13 +96,22 @@ volatile int counter = 0;
 ISR(TIMER2_OVF_vect){
     counter++;
     if(counter == blinkspeed){
-        if(TurnSignalLeft) LedTurnSignalLeftToggle();
-        if(TurnSignalRight)LedTurnSignalRightToggle();
-        if(TreeSignalLeft) LedTreeIndictorLeftToggle();
-        if(TreeSignalRight) LedTreeIndictorRightToggle();
+        if(TurnSignalLeft) {
+                LedTurnSignalLeftToggle();
+        } else PORTL &= ~(1<<TurnSignalLEDLeft);
+        if(TurnSignalRight){
+                LedTurnSignalRightToggle();
+        } else PORTL &= ~(1 << TurnSignalLEDRight);
+        if(TreeSignalLeft) {
+                LedTreeIndictorLeftToggle();
+        } else PORTB &= ~(1 << TreeIndicatedLEDLeft);
+        if(TreeSignalRight) {
+                LedTreeIndictorRightToggle();
+        } else PORTB &= ~(1 << TreeIndicatedLEDRight);
         counter = 0;
     }
 }
+
 
 void init_delay_led(){
     // Use mode 0, clkdiv = 64
