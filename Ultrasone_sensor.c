@@ -24,11 +24,12 @@ void agv_ultrasoon_init()
 ISR(TIMER3_COMPB_vect)
 {
     agv_ultrasoon_current_sensor = (agv_ultrasoon_current_sensor<<1);
-    if (agv_ultrasoon_current_sensor == (1<<6))//0b00100000
+    if (agv_ultrasoon_current_sensor == (1<<5))//0b00100000
     {
         agv_ultrasoon_current_sensor = 2;
 
     }
+    if(agv_ultrasoon_current_sensor == (1<<3)) agv_ultrasoon_current_sensor = (1<<4);
     PCMSK2 = agv_ultrasoon_current_sensor;
     //PORTA = agv_ultrasoon_current_sensor;
     TIMSK3 |= (1<<OCIE3B);

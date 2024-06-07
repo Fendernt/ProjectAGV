@@ -15,7 +15,7 @@
 #define distanceToCheck 40
 #define distanceToFollow 10
 #define dAccuracy 3
-#define TreeDistance 6
+#define TreeDistance 3
 
 #define CheckinFrontOfAVRWhileDriving 20
 
@@ -54,6 +54,7 @@
 */
 #define UseDrivingCorrection //Gebruik padcorrectie tijdens het rijden van het pad
 #define UseUltrasone //Gebruik de ultrasone tijdens het rijden in het pad
+#define UltrasoneDoublechecking //Maak meerdere scans van de ultrasone voor het bepalen van een object
 #define MaakBochtNaPad //Maak de bocht na het einde van het pad
 int doorEerstePadGereden = 0;
 int var_inEenPad = 0;
@@ -196,10 +197,16 @@ int main(void)
 
                 #ifdef MaakBochtNaPad
                 if(nietInEenPad() && !alBochtGemaakt){
-                    alBochtGemaakt = 1;
-                    mode = BoomgaardBocht;
+                    _delay_ms(50);
+                    if(nietInEenPad() && !alBochtGemaakt){
+                        alBochtGemaakt = 1;
+                        mode = BoomgaardBocht;
+                    }
                 } else if(nietInEenPad()){
-                    mode = ModeOff;
+                    _delay_ms(50);
+                    if(nietInEenPad()){
+                        mode = ModeOff;
+                    }
                 }
                 #endif // MaakBochtNaPad
 
@@ -397,10 +404,14 @@ int checkFrontIRState(){
     2-Er is een boom rechts van de AGV
     3-Er is niks gemeten
 */
+
+#define doubleCheckTimeDelay 400
 int checkSensors(){
     //Variable om te kijken of er al iets is gemeten
     static int leftPreviousState = 0;
     static int rightPreviousState = 0;
+    static int doubleCheckLeft = 0;
+    static int doubleCheckRight = 0;
 
     #ifndef UseUltrasone
     return 3;
@@ -414,21 +425,49 @@ int checkSensors(){
     //Kijken of er iets voor de AGV staat, en er nog niks is gemeten
     if((TreeDistance > filterDistance(agv_ultrasoon_boom_links)) && !leftPreviousState){
         //Variable zetten om te onthouden dat deze al is gemeten.
+        #ifdef UltrasoneDoublechecking
+        if(!doubleCheckLeft){
+            doubleCheckLeft = 1;
+            _delay_ms(doubleCheckTimeDelay);
+            return 3;
+        } else {
+            doubleCheckLeft = 0;
+            leftPreviousState = 1;
+            return 1;
+        }
+        #else
         leftPreviousState = 1;
         return 1;
+        #endif // UltrasoneDoublechecking
+
     } else if(leftPreviousState && (TreeDistance < filterDistance(agv_ultrasoon_boom_links)) ){
         //Er word geen boom meer gemeten dus we zijn er voorbij gereden, variable weer uitzetten om de te zoeken naar de volgende boom.
         //_delay_ms(100);
         leftPreviousState = 0;
+        doubleCheckLeft = 0;
     }
 
     //Werkt hetzelfde als hierboven maar dan voor de rechterkant van de AGV
-    if((TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)) && !rightPreviousState){
+    if((TreeDistance > filterDistance(agv_ultrasoon_boom_rechts)) && !rightPreviousState ){
+        #ifdef UltrasoneDoublechecking
+        if(!doubleCheckRight){
+            doubleCheckRight = 1;
+            _delay_ms(doubleCheckTimeDelay);
+            return 3;
+        } else {
+            doubleCheckRight = 0;
+            rightPreviousState = 1;
+            return 2;
+        }
+        #else
         rightPreviousState = 1;
         return 2;
+        #endif // UltrasoneDoublechecking
+
     } else if(rightPreviousState && (TreeDistance < filterDistance(agv_ultrasoon_boom_rechts)) ){
         //_delay_ms(100);
         rightPreviousState = 0;
+        doubleCheckRight = 0;
     }
 
     //Er is niks gemeten
