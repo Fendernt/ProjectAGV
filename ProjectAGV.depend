@@ -2,15 +2,15 @@
 1716896309 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\fuse.c
 	<avr/io.h>
 
-1717586819 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.c
+1717751617 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.c
 	<avr/io.h>
 	<avr/interrupt.h>
 	<avr/delay.h>
 	"SteppermotorAVRDriver.h"
 
-1717410455 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.h
+1717751617 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\steppermotoravrdriver.h
 
-1717674638 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\main.c
+1718702410 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\main.c
 	<avr/io.h>
 	<util/delay.h>
 	"SteppermotorAVRDriver.h"
@@ -18,9 +18,9 @@
 	"AGVBochten.h"
 	"AGV_Leds.h"
 
-1717423600 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.h
+1717751617 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.h
 
-1717674097 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.c
+1718702219 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\ultrasone_sensor.c
 	<avr/interrupt.h>
 	<avr/io.h>
 
@@ -39,20 +39,26 @@
 	<avr/interrupt.h>
 	<avr/io.h>
 
-1717592499 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agvbochten.h
+1717751617 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agvbochten.h
 
-1717591764 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\avgbochten.c
+1717751617 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\avgbochten.c
 	<avr/io.h>
 	<util/delay.h>
 	<avr/interrupt.h>
 	"AGVBochten.h"
 	"SteppermotorAVRDriver.h"
 
-1717579259 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agv_leds.c
+1717751617 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agv_leds.c
 	<avr/io.h>
 	<util/delay.h>
 	<avr/interrupt.h>
 	"AGV_Leds.h"
 
 1717490634 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agv_leds.h
+
+1718618513 source:c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\7_segment_display.c
+	<avr/io.h>
+	"7_segment_display.h"
+
+1718618775 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\7_segment_display.h
 
