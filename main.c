@@ -12,14 +12,14 @@
 #include "AGVBochten.h"
 #include "AGV_Leds.h"
 
-#define distanceToCheck 40
-#define distanceToFollow 10
-#define dAccuracy 3
-#define TreeDistance 7
+#define distanceToCheck 20 //Afstand om te controlleren voor een hand (om te volgen)
+#define distanceToFollow 6 //Afstand om op te blijven als iemand word gevolgt
+#define dAccuracy 2 //Speling in de afstand van volgen (distanceToFollow +- dAccuracy)
+#define TreeDistance 10 //Afstand om te controlleren voor bomen
 
-#define CheckinFrontOfAVRWhileDriving 20
+#define CheckinFrontOfAVRWhileDriving 20 //Afstand om voor te stoppen als er iets op de weg is
 
-#define TimeToWaitBetweenTrees 1200
+#define TimeToWaitBetweenTrees 1200 //Tijd om te wachten tussen bomen
 
 
 #define minDistance (distanceToFollow - dAccuracy)
@@ -55,15 +55,22 @@
     Defines voor het bepalen wat wel en niet word gedaan
     tijdens het rijden in een pad
 */
-
+//---------------------------------------
 #define UseDrivingCorrection //Gebruik padcorrectie tijdens het rijden van het pad
 
 #define UseUltrasone //Gebruik de ultrasone tijdens het rijden in het pad
+
 #define UltrasoneDoublechecking //Maak meerdere scans van de ultrasone voor het bepalen van een object
-#define doubleCheckTimeDelay 300
-//#define UltrasoneUseValueComparison //Vergelijkt vorige 3 waardes van de ultrasone met elkaar
+#define doubleCheckTimeDelay 120
+#define amountOfDoubleChecks 2
+#define TimeBetweenRechecking 100
+
+#define UltrasoneUseValueComparison //Vergelijkt vorige 3 waardes van de ultrasone met elkaar
 
 #define MaakBochtNaPad //Maak de bocht na het einde van het pad
+//---------------------------------------
+
+
 int doorEerstePadGereden = 0;
 int var_inEenPad = 0;
 
@@ -107,7 +114,7 @@ int main(void)
     while(1){
 
 
-        display(agv_ultrasoon_boom_rechts);
+        //display(agv_ultrasoon_boom_rechts);
         //display(agv_ultrasoon_boom_links);
 
         //Check voor de noodstop.
@@ -190,13 +197,13 @@ int main(void)
                         TurnSignalLeft = 1;
                         TurnSignalRight = 0;
                         setStepperMode(rightMotor, BackwardStep);
-                        setStepperMode(leftMotor, Off);
+                        setStepperMode(leftMotor, ForwardStep);
                         break;
                     case 2: //Rechter IR Sensor activated
                         TurnSignalRight = 1;
                         TurnSignalLeft = 0;
                         setStepperMode(leftMotor, BackwardStep);
-                        setStepperMode(rightMotor, Off);
+                        setStepperMode(rightMotor, ForwardStep);
                         break;
                     case 3: //Geen IR sensor activated
                         followHand(filterDistance(FrontDistance));
@@ -210,6 +217,11 @@ int main(void)
             case BoomgaardRijden:
                 int WorldState = checkSensors();
                 static int alBochtGemaakt = 0;
+                static int previousWorldState = -1;
+                if(previousWorldState != WorldState){
+                    previousWorldState = WorldState;
+                    // if(WorldState == 3) _delay_ms(TimeBetweenRechecking);
+                }
 
                 #ifdef MaakBochtNaPad
                 if(nietInEenPad() && !alBochtGemaakt){
@@ -237,7 +249,7 @@ int main(void)
                         setBreaklights(1);
                         _delay_ms(TimeToWaitBetweenTrees);
                         TreeSignalLeft = 0;
-                        break;
+                         break;
                     case 2: //Tree right
                         setBothStepperMode(Off);
                         TreeSignalRight = 1;
@@ -290,6 +302,7 @@ int main(void)
                 if(bochtGemaakt){
                     if(bit_is_clear(IRPIN, IRSensorLeft) || bit_is_clear(IRPIN, IRSensorRight)){
                         bochtGemaakt = 0;
+                        _delay_ms(300);
                         mode = BoomgaardRijden;
                     }
                 }
@@ -450,13 +463,14 @@ int checkSensors(){
     if((TreeDistance > valueLeft) && !leftPreviousState){
         //Variable zetten om te onthouden dat deze al is gemeten.
         #ifdef UltrasoneDoublechecking
-        if(!doubleCheckLeft){
-            doubleCheckLeft = 1;
+        if(doubleCheckLeft < amountOfDoubleChecks){
+            doubleCheckLeft++;
             _delay_ms(doubleCheckTimeDelay);
             return 3;
         } else {
             doubleCheckLeft = 0;
             leftPreviousState = 1;
+            display(1000);
             return 1;
         }
         #else
@@ -467,20 +481,28 @@ int checkSensors(){
     } else if(leftPreviousState && (TreeDistance < valueLeft) ){
         //Er word geen boom meer gemeten dus we zijn er voorbij gereden, variable weer uitzetten om de te zoeken naar de volgende boom.
         //_delay_ms(100);
-        leftPreviousState = 0;
-        doubleCheckLeft = 0;
+        if((doubleCheckLeft < amountOfDoubleChecks)){
+            doubleCheckLeft++;
+            _delay_ms(doubleCheckTimeDelay);
+        } else {
+            leftPreviousState = 0;
+            doubleCheckLeft = 0;
+            display(2000);
+            _delay_ms(TimeBetweenRechecking);
+        }
     }
 
     //Werkt hetzelfde als hierboven maar dan voor de rechterkant van de AGV
     if((TreeDistance > valueRight) && !rightPreviousState ){
         #ifdef UltrasoneDoublechecking
-        if(!doubleCheckRight){
-            doubleCheckRight = 1;
+        if((doubleCheckRight < amountOfDoubleChecks)){
+            doubleCheckRight++;
             _delay_ms(doubleCheckTimeDelay);
             return 3;
         } else {
             doubleCheckRight = 0;
             rightPreviousState = 1;
+            display(10);
             return 2;
         }
         #else
@@ -490,8 +512,15 @@ int checkSensors(){
 
     } else if(rightPreviousState && (TreeDistance < valueRight) ){
         //_delay_ms(100);
-        rightPreviousState = 0;
-        doubleCheckRight = 0;
+        if((doubleCheckRight < amountOfDoubleChecks)){
+            doubleCheckRight++;
+            _delay_ms(doubleCheckTimeDelay);
+        } else {
+            rightPreviousState = 0;
+            doubleCheckRight = 0;
+            display(20);
+            _delay_ms(TimeBetweenRechecking);
+        }
     }
 
     //Er is niks gemeten
