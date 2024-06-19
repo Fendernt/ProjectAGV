@@ -56,3 +56,35 @@
 
 1717490634 c:\users\visse\onedrive\documenten\.school\.code\mechatronica\projecten\agv\projectagv\agv_leds.h
 
+1718798193 source:c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\agv_leds.c
+	<avr/io.h>
+	<util/delay.h>
+	<avr/interrupt.h>
+	"AGV_Leds.h"
+
+1717655473 c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\agv_leds.h
+
+1718798193 source:c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\avgbochten.c
+	<avr/io.h>
+	<util/delay.h>
+	<avr/interrupt.h>
+	"AGVBochten.h"
+	"SteppermotorAVRDriver.h"
+
+1718798193 c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\agvbochten.h
+
+1718798193 c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\steppermotoravrdriver.h
+
+1717170367 source:c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\fuse.c
+	<avr/io.h>
+
+1718798193 source:c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\steppermotoravrdriver.c
+	<avr/io.h>
+	<avr/interrupt.h>
+	<avr/delay.h>
+	"SteppermotorAVRDriver.h"
+
+1718798193 source:c:\users\fmole\onedrive - de haagse hogeschool\blok 4\project\git_repo\projectagv\ultrasone_sensor.c
+	<avr/interrupt.h>
+	<avr/io.h>
+
