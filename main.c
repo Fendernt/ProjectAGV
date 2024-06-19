@@ -15,7 +15,7 @@
 #define distanceToCheck 20 //Afstand om te controlleren voor een hand (om te volgen)
 #define distanceToFollow 6 //Afstand om op te blijven als iemand word gevolgt
 #define dAccuracy 2 //Speling in de afstand van volgen (distanceToFollow +- dAccuracy)
-#define TreeDistance 10 //Afstand om te controlleren voor bomen
+#define TreeDistance 5 //Afstand om te controlleren voor bomen
 
 #define CheckinFrontOfAVRWhileDriving 20 //Afstand om voor te stoppen als er iets op de weg is
 
@@ -61,9 +61,9 @@
 #define UseUltrasone //Gebruik de ultrasone tijdens het rijden in het pad
 
 #define UltrasoneDoublechecking //Maak meerdere scans van de ultrasone voor het bepalen van een object
-#define doubleCheckTimeDelay 120
+#define doubleCheckTimeDelay 130
 #define amountOfDoubleChecks 2
-#define TimeBetweenRechecking 100
+#define TimeBetweenRechecking 200
 
 #define UltrasoneUseValueComparison //Vergelijkt vorige 3 waardes van de ultrasone met elkaar
 
@@ -114,7 +114,7 @@ int main(void)
     while(1){
 
 
-        //display(agv_ultrasoon_boom_rechts);
+        display(agv_ultrasoon_boom_rechts);
         //display(agv_ultrasoon_boom_links);
 
         //Check voor de noodstop.
@@ -470,7 +470,7 @@ int checkSensors(){
         } else {
             doubleCheckLeft = 0;
             leftPreviousState = 1;
-            display(1000);
+            //display(1000);
             return 1;
         }
         #else
@@ -487,7 +487,7 @@ int checkSensors(){
         } else {
             leftPreviousState = 0;
             doubleCheckLeft = 0;
-            display(2000);
+            //display(2000);
             _delay_ms(TimeBetweenRechecking);
         }
     }
@@ -502,7 +502,7 @@ int checkSensors(){
         } else {
             doubleCheckRight = 0;
             rightPreviousState = 1;
-            display(10);
+            //display(10);
             return 2;
         }
         #else
@@ -518,7 +518,7 @@ int checkSensors(){
         } else {
             rightPreviousState = 0;
             doubleCheckRight = 0;
-            display(20);
+            //display(20);
             _delay_ms(TimeBetweenRechecking);
         }
     }
@@ -539,15 +539,7 @@ int checkSensors(){
 
     Anders return de originele waarde.
 */
-int filterDistance(int distance){
-    //Alle waardes boven 200 zijn bs anyways
-    if(distance == 561){
-        distance = 1;
-    } else if(distance >= 500){
-        distance = 100;
-    }
-    return distance;
-}
+
 
 //Code voor het volgen van de hand op de juiste afstand
 void followHand(int distance){

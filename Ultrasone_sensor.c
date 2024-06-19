@@ -6,7 +6,6 @@ volatile uint16_t agv_ultrasoon_boom_rechts = 0; //pin A9
 volatile uint16_t agv_ultrasoon_voor_midden = 0; //pin A12
 volatile uint8_t agv_ultrasoon_current_sensor = 2;
 
-
 #define ValueArrayLength 3
 //Laatste array index word gebruikt als return nummer
 int LeftSensorArray[ValueArrayLength];
@@ -57,6 +56,16 @@ void agv_ultrasoon_init()
     sei();
 }
 
+int filterDistance(int distance){
+    //Alle waardes boven 200 zijn bs anyways
+    if(distance == 561){
+        distance = 2;
+    } else if(distance >= 500){
+        distance = 100;
+    }
+    return distance;
+}
+
 ISR(TIMER3_COMPB_vect)
 {
     agv_ultrasoon_current_sensor = (agv_ultrasoon_current_sensor<<1);
@@ -98,18 +107,21 @@ ISR(PCINT2_vect)
     if(agv_ultrasoon_current_sensor == 0b00000010)
     {
         agv_ultrasoon_boom_rechts = (TCNT3 - 4454)/4*0.0343;
+        agv_ultrasoon_boom_rechts = filterDistance(agv_ultrasoon_boom_rechts);
         if(agv_ultrasoon_boom_rechts != 0) RightSensorArray[arrayPositionRight++] = agv_ultrasoon_boom_rechts;
         PORTA &= ~(0b00000001);
     }
     else if(agv_ultrasoon_current_sensor == 0b00000100)
     {
         agv_ultrasoon_boom_links = (TCNT3 - 4454)/4*0.0343;
+        agv_ultrasoon_boom_links = filterDistance(agv_ultrasoon_boom_links);
         if(agv_ultrasoon_boom_links != 0) LeftSensorArray[arrayPositionLeft++] = agv_ultrasoon_boom_links;
         PORTA &= ~(0b00000010);
     }
     else if(agv_ultrasoon_current_sensor == 0b00010000)
     {
         agv_ultrasoon_voor_midden = (TCNT3 - 4454)/4*0.0343;
+        agv_ultrasoon_voor_midden = filterDistance(agv_ultrasoon_voor_midden);
         PORTA &= ~(0b00001000);
     }
 
