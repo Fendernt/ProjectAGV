@@ -2952,8 +2952,8 @@ void followHand(int distance){
 
 00000c5c <.L93>:
      c5c:	2f ef       	ldi	r18, 0xFF	; 255
-     c5e:	80 e7       	ldi	r24, 0x70	; 112
-     c60:	92 e0       	ldi	r25, 0x02	; 2
+     c5e:	83 ec       	ldi	r24, 0xC3	; 195
+     c60:	99 e0       	ldi	r25, 0x09	; 9
 
 00000c62 <.L1^B13>:
      c62:	21 50       	subi	r18, 0x01	; 1

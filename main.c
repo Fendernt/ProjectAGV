@@ -231,7 +231,7 @@ int main(void)
                         mode = BoomgaardBocht;
                     }
                 } else if(nietInEenPad()){
-                    _delay_ms(50);
+                    _delay_ms(200);
                     if(nietInEenPad()){
                         mode = ModeOff;
                     }
